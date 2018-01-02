@@ -11,12 +11,14 @@ var clientSecret = process.env.clientSecret;
 var app = express();
 
 // Define a port we want to listen to
-const PORT=80;
+const PORT=4390;
 
 // Slack Bounce Hook URL
 var slackHook = 'https://hooks.slack.com/services/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'
 
 // Parse JSON and send response back
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
   res.send('Postmark Bounce App')
 })
@@ -24,7 +26,6 @@ app.get('/', (req, res) => {
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
 
-app.use(bodyParser.json());
 
 // Message to be sent to Slack hook
 var slackMessage = 
