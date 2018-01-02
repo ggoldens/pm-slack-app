@@ -1,0 +1,23 @@
+{
+  "name": "pm-slack-app",
+  "version": "1.0.0",
+  "description": "Slack app for Postmark",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://rianvdm@github.com/rianvdm/pm-slack-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rianvdm/pm-slack-app/issues"
+  },
+  "homepage": "https://github.com/rianvdm/pm-slack-app#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "request": "^2.83.0"
+  }
+}
