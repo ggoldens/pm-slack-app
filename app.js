@@ -63,7 +63,7 @@ request({
 // Start server
 app.listen(PORT, function () {
     //Callback triggered when server is successfully listening.
-    console.log("Example app listening on port " + PORT);
+    console.log("Postmark bounce app listening on port " + PORT);
 });
 
 
