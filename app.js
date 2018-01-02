@@ -16,6 +16,10 @@ const PORT=4390;
 // Parse JSON and send response back
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.send('Postmark Bounce App')
+})
+
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
 
