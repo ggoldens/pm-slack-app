@@ -13,15 +13,18 @@ var app = express();
 // Define a port we want to listen to
 const PORT=80;
 
-// Parse JSON and send response back
-app.use(bodyParser.json());
+// Slack Bounce Hook URL
+var slackHook = 'https://hooks.slack.com/services/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'
 
+// Parse JSON and send response back
 app.get('/', (req, res) => {
   res.send('Postmark Bounce App')
 })
 
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
+
+app.use(bodyParser.json());
 
 // Message to be sent to Slack hook
 var slackMessage = 
@@ -32,14 +35,14 @@ var slackMessage =
  + ' to '
  + req.body.Email
  + ', and the subject was "'
- + req.body.Subject + '."';
+ + req.body.Subject + '".';
  
  // URL to view Bounce details in activity
  var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
  
  // POST to Slack hook
 request({
-	url: 'https://hooks.slack.com/services/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',
+	url: slackHook,
 	method: 'POST',
 	json: true,
 	body: {"text": slackMessage,
