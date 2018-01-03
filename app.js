@@ -5,8 +5,8 @@ var request = require('request');
 var bodyParser = require('body-parser');
 
 // Store app's ID and Secret
-var clientId = process.env.clientId;
-var clientSecret = process.env.clientSecret;
+var clientId = process.env.CLIENT_ID;
+var clientSecret = process.env.CLIENT_SECRET;
 
 // Instantiates Express and assigns our app variable to it
 var app = express();
