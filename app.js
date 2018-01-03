@@ -12,7 +12,7 @@ var clientSecret = process.env.CLIENT_SECRET;
 var app = express();
 
 // Define a port to listen to
-const PORT=80;
+const PORT=4390;
 
 // Load JSON parser
 app.use(bodyParser.json());
