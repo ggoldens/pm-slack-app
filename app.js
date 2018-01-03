@@ -1,30 +1,67 @@
 // Import necessary modules
+require('dotenv').config()
 var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 
 // Store app's ID and Secret.
-var clientId = process.env.clientId;
-var clientSecret = process.env.clientSecret;
+var clientId = process.env.CLIENT_ID;
+var clientSecret = process.env.CLIENT_SECRET;
 
 // Instantiates Express and assigns our app variable to it
 var app = express();
 
-// Define a port we want to listen to
+// Define a port to listen to
 const PORT=4390;
 
 // Slack Bounce Hook URL
 var slackHook = 'https://hooks.slack.com/services/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'
 
-// Parse JSON and send response back
+// Load JSON parser
 app.use(bodyParser.json());
 
+// *** Oauth ***
+
+// Set up routes
+
+// This route handles get request to a /oauth endpoint. We'll use this endpoint for handling the logic of the Slack oAuth process behind our app.
+app.get('/oauth', function(req, res) {
+    // When a user authorizes an app, a code query parameter is passed on the oAuth endpoint. If that code is not there, we respond with an error message
+    if (!req.query.code) {
+        res.status(500);
+        res.send({"Error": "Looks like we're not getting code."});
+        console.log("Looks like we're not getting code.");
+    } else {
+        // If it's there...
+
+        // We'll do a GET call to Slack's `oauth.access` endpoint, passing our app's client ID, client secret, and the code we just got as query parameters.
+        request({
+            url: 'https://slack.com/api/oauth.access', //URL to hit
+            qs: {code: req.query.code, client_id: clientId, client_secret: clientSecret}, //Query string data
+            method: 'GET', //Specify the method
+
+        }, function (error, response, body) {
+            if (error) {
+                console.log(error);
+            } else {
+                res.json(body);
+
+            }
+        })
+    }
+});
+
+
+// *** Parse bounce webhook and send to Slack hook ***
+
+// Set up routes
 app.get('/', (req, res) => {
   res.send('Postmark Bounce App')
 })
 
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
+  
 
 
 // Message to be sent to Slack hook
