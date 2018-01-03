@@ -48,7 +48,7 @@ app.get('/oauth', function(req, res) {
 // *** Parse bounce webhook and send to Slack hook ***
 
 // Slack Bounce Hook URL
-var slackHook = 'https://hooks.slack.com/services/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'
+var slackHook = 'https://hooks.slack.com/services/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'
 
 // Set up routes
 app.get('/', (req, res) => {
