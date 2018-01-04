@@ -18,7 +18,13 @@ var PORT = process.env.PORT || 3000;
 // Load JSON parser
 app.use(bodyParser.json());
 
-// *** Oauth ***
+// *** FIGURE OUT HOW MONGODB WORKS
+
+
+
+
+
+// *** OAUTH ***
 
 // This route handles get request to a /oauth endpoint. It handles the logic of the Slack oAuth process.
 app.get('/oauth', function(req, res) {
