@@ -16,8 +16,8 @@ var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
-// var envURL='localhost:5000/'
-var envURL='https://pm-slack-bounce.herokuapp.com/'
+var envURL='localhost:5000/'
+// var envURL='https://pm-slack-bounce.herokuapp.com/'
 
 
 // Load JSON parser
@@ -49,7 +49,7 @@ app.get('/oauth', function(req, res) {
 				res.json("Authentication was successful");
 				
 				
-// *** INSERT DB RECORD
+        // *** INSERT DB RECORD
 
 				// Set data array to be added
 				
@@ -175,15 +175,14 @@ app.get('/oauth', function(req, res) {
 
 
 
-// *** Parse bounce webhook and send to Slack hook ***
 
-// Slack Bounce Hook URL
-// var slackHook = 'https://hooks.slack.com/services/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'
 
 // Set up / routes
 app.get('/', (req, res) => {
   res.send('The Postmark Bounce App is running.')
 })
+
+/*
 
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
@@ -229,7 +228,7 @@ request({
 
 })
 
-
+*/
 
 // Start server
 app.listen(PORT, function () {
