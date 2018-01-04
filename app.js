@@ -1,4 +1,4 @@
-// Import necessary modules
+// Import required modules
 require('dotenv').config()
 var express = require('express');
 var request = require('request');
@@ -39,7 +39,7 @@ app.get('/oauth', function(req, res) {
             qs: {code: req.query.code, client_id: clientId, client_secret: clientSecret}, //Query string data
             method: 'GET', //Specify the method
 
-		// Now we have to create a uuid, generate a Postmark Inbound URL, and add the webhook URL that Slack generated to the DB
+		// Store Slack's OAuth response
 
         }, function (error, response, body) {
             if (error) {
@@ -51,13 +51,14 @@ app.get('/oauth', function(req, res) {
 				
         // *** INSERT DB RECORD
 
-				// Set data array to be added
+				// Generate uuid and unique Postmark URL, store Slacks's incoming hook URL
 				
 				var uuid = uidgen.generateSync();
 				var slackInboundURL = slackOAuthResponse.incoming_webhook.url;
 				var postmarkInboundURL = envURL + uuid;
 
-				
+				// Set data array to be added
+								
 				var newBounceUser = [
 				  {
 				    uuid: uuid,
@@ -84,7 +85,6 @@ app.get('/oauth', function(req, res) {
 				  bounce_users.insert(newBounceUser, function(err, result) {
 				    
 				    if(err) throw err;
-				
 				
 				        // Send values to console for testing
 				
