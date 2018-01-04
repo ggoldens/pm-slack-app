@@ -22,6 +22,7 @@ app.use(bodyParser.json());
 // *** OAUTH ***
 
 // This route handles get request to a /oauth endpoint. It handles the logic of the Slack oAuth process.
+
 app.get('/oauth', function(req, res) {
     if (!req.query.code) {
         res.status(500);
@@ -40,9 +41,10 @@ app.get('/oauth', function(req, res) {
                 console.log(error);
             } else {
                 var slackOAuthResponse = JSON.parse(body);
-                console.log(slackOAuthResponse.incoming_webhook.url)
 				res.json('Authentication was successful');
-				// *** INSERT DB RECORD
+				
+				
+// *** INSERT DB RECORD
 
 				// Set data array to be added
 				
@@ -87,7 +89,7 @@ app.get('/oauth', function(req, res) {
 				            });
 				         
 				           
-				            // Close the connection when your app is terminating.
+							// Close the connection
 				            client.close(function (err) {
 				              if(err) throw err;
 				            });
@@ -95,9 +97,6 @@ app.get('/oauth', function(req, res) {
 				        });
 				      }
 				    );
-    
-    
-    
             }
         })
     }
