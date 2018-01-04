@@ -16,7 +16,7 @@ var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
-var envURL='localhost:3000/'
+var envURL='localhost:5000/'
 // var envURL='https://pm-slack-bounce.herokuapp.com/'
 
 
@@ -53,9 +53,9 @@ app.get('/oauth', function(req, res) {
 
 				// Set data array to be added
 				
-				var uuid=uidgen.generateSync();
-				var slackInboundURL=slackOAuthResponse.incoming_webhook.url;
-				var postmarkInboundURL=envURL + uuid;
+				var uuid = uidgen.generateSync();
+				var slackInboundURL = slackOAuthResponse.incoming_webhook.url;
+				var postmarkInboundURL = envURL + uuid;
 
 				
 				var newBounceUser = [
@@ -107,6 +107,67 @@ app.get('/oauth', function(req, res) {
 				        });
 				      }
 				    );
+				
+					// Let the user know what they need to do
+					
+					request({
+						url: slackInboundURL,
+						method: 'POST',
+						json: true,
+						body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is your unique Inbound Webhook URL: `" + postmarkInboundURL + "`"},
+						})
+				
+				
+					// Set up unique routes
+					
+					app.get('/:postmarkInboundURL', (req, res) => {
+					  res.send('The Postmark Bounce App is running.')
+					})
+					
+					
+					app.post('/:postmarkInboundURL', function (req, res) {
+					  res.send('200 Everything is ok');
+					
+					
+					// Message to be sent to Slack hook
+					var slackMessage = 
+					 '*'
+					 + req.body.Name
+					 + ' received*\nThe email was sent from '
+					 + req.body.From
+					 + ' to '
+					 + req.body.Email
+					 + ', and the subject was "'
+					 + req.body.Subject + '".';
+					 
+					 // URL to view Bounce details in activity
+					 var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
+					 
+					 // POST to Slack hook
+					request({
+						url: slackInboundURL,
+						method: 'POST',
+						json: true,
+						body: {"text": slackMessage,
+							"attachments": [
+								{
+									"fallback": "View activity details at " + bounceDetailsURL,
+									"actions": [
+										{
+											"type": "button",
+											"name": "bounce_details",
+											"text": "View details",
+											"url": bounceDetailsURL,
+											"style": "primary"
+										}
+									]
+								}
+							]
+						},
+					}, function (error, response, body){});
+					
+					
+					})
             }
         })
     }
@@ -119,20 +180,12 @@ app.get('/oauth', function(req, res) {
 // Slack Bounce Hook URL
 // var slackHook = 'https://hooks.slack.com/services/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'
 
-// Set up routes
+// Set up / routes
 app.get('/', (req, res) => {
   res.send('The Postmark Bounce App is running.')
 })
 
 app.post('/', function (req, res) {
-  res.send('200 Everything is ok');
-
-// Set unique route for user
-app.get(postmarkInboundURL, (req, res) => {
-  res.send('The Postmark Bounce App is running.')
-})
-
-app.post(postmarkInboundURL, function (req, res) {
   res.send('200 Everything is ok');
 
 
@@ -177,9 +230,12 @@ request({
 })
 
 
+
 // Start server
 app.listen(PORT, function () {
     //Callback triggered when server is successfully listening.
     console.log("Postmark bounce app listening on port " + PORT);
 });
 
+
+	
