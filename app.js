@@ -3,6 +3,7 @@ require('dotenv').config()
 var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
+var mongodb = require('mongodb');
 
 // Store app's ID and Secret
 var clientId = process.env.CLIENT_ID;
