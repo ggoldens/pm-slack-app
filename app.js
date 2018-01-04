@@ -4,6 +4,8 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
+var UIDGenerator = require('uid-generator');
+var uidgen = new UIDGenerator();
 
 // Store app's ID and Secret
 var clientId = process.env.CLIENT_ID;
@@ -14,6 +16,9 @@ var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
+var envURL='localhost:3000/'
+// var envURL='https://pm-slack-bounce.herokuapp.com/'
+
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -41,18 +46,23 @@ app.get('/oauth', function(req, res) {
                 console.log(error);
             } else {
                 var slackOAuthResponse = JSON.parse(body);
-				res.json('Authentication was successful');
+				res.json("Authentication was successful");
 				
 				
 // *** INSERT DB RECORD
 
 				// Set data array to be added
 				
+				var uuid=uidgen.generateSync();
+				var slackInboundURL=slackOAuthResponse.incoming_webhook.url;
+				var postmarkInboundURL=envURL + uuid;
+
+				
 				var newBounceUser = [
 				  {
-				    uuid: '1234',
-				    slack_hook: slackOAuthResponse.incoming_webhook.url,
-				    pm_hook: 'A URL for inbound',
+				    uuid: uuid,
+				    slack_hook: slackInboundURL,
+				    pm_hook: postmarkInboundURL,
 				  }
 				];
 				
@@ -76,15 +86,15 @@ app.get('/oauth', function(req, res) {
 				    if(err) throw err;
 				
 				
-				        // Send hook to console for testing
+				        // Send values to console for testing
 				
-				        bounce_users.find({ uuid : '1234' }).limit(1).toArray(function (err, doc) {
+				        bounce_users.find({ uuid : uuid }).limit(1).toArray(function (err, doc) {
 				
 				          if(err) throw err;
 						  
 						  doc.forEach(function (doc) {
 				            console.log(
-				              'The slack hook is ' + doc['slack_hook']
+				              'The slack hook is ' + doc['slack_hook'] + ', and the Postmark Inbound URL is ' + doc['pm_hook']
 				            );
 				            });
 				         
@@ -107,7 +117,7 @@ app.get('/oauth', function(req, res) {
 // *** Parse bounce webhook and send to Slack hook ***
 
 // Slack Bounce Hook URL
-var slackHook = 'https://hooks.slack.com/services/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'
+// var slackHook = 'https://hooks.slack.com/services/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'
 
 // Set up routes
 app.get('/', (req, res) => {
@@ -115,6 +125,14 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', function (req, res) {
+  res.send('200 Everything is ok');
+
+// Set unique route for user
+app.get(postmarkInboundURL, (req, res) => {
+  res.send('The Postmark Bounce App is running.')
+})
+
+app.post(postmarkInboundURL, function (req, res) {
   res.send('200 Everything is ok');
 
 
@@ -134,7 +152,7 @@ var slackMessage =
  
  // POST to Slack hook
 request({
-	url: slackHook,
+	url: slackInboundURL,
 	method: 'POST',
 	json: true,
 	body: {"text": slackMessage,
@@ -165,5 +183,3 @@ app.listen(PORT, function () {
     console.log("Postmark bounce app listening on port " + PORT);
 });
 
-
-	
