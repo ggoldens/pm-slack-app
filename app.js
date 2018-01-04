@@ -18,38 +18,91 @@ var PORT = process.env.PORT || 3000;
 // Load JSON parser
 app.use(bodyParser.json());
 
-// *** FIGURE OUT HOW MONGODB WORKS
-
-
-
-
 
 // *** OAUTH ***
 
 // This route handles get request to a /oauth endpoint. It handles the logic of the Slack oAuth process.
 app.get('/oauth', function(req, res) {
-    // When a user authorizes an app, a code query parameter is passed on the oAuth endpoint. If that code is not there, respond with an error message
     if (!req.query.code) {
         res.status(500);
         res.send({"Error": "Looks like we're not getting code."});
         console.log("Looks like we're not getting code.");
     } else {
-        // If it's there, do a GET call to Slack's `oauth.access` endpoint, passing client ID, client secret, and the received code as query parameters.
         request({
             url: 'https://slack.com/api/oauth.access', //URL to hit
             qs: {code: req.query.code, client_id: clientId, client_secret: clientSecret}, //Query string data
             method: 'GET', //Specify the method
 
+		// Now we have to create a uuid, generate a Postmark Inbound URL, and add the webhook URL that Slack generated to the DB
+
         }, function (error, response, body) {
             if (error) {
                 console.log(error);
             } else {
-                res.json(body);
+                var slackOAuthResponse = JSON.parse(body);
+                console.log(slackOAuthResponse.incoming_webhook.url)
+				res.json('Authentication was successful');
+				// *** INSERT DB RECORD
 
+				// Set data array to be added
+				
+				var newBounceUser = [
+				  {
+				    uuid: '1234',
+				    slack_hook: slackOAuthResponse.incoming_webhook.url,
+				    pm_hook: 'A URL for inbound',
+				  }
+				];
+				
+				// Connect to DB
+				
+				var uri = process.env.MONGODB_URI;
+				var dbName = 'heroku_mmj6wkv3';
+				
+				mongodb.MongoClient.connect(uri, function(err, client) {
+				  
+				  if(err) throw err;
+				  
+				  var db = client.db(dbName);
+				
+				  var bounce_users = db.collection('bounce_users');
+				
+				// Insert new user record
+				
+				  bounce_users.insert(newBounceUser, function(err, result) {
+				    
+				    if(err) throw err;
+				
+				
+				        // Send hook to console for testing
+				
+				        bounce_users.find({ uuid : '1234' }).limit(1).toArray(function (err, doc) {
+				
+				          if(err) throw err;
+						  
+						  doc.forEach(function (doc) {
+				            console.log(
+				              'The slack hook is ' + doc['slack_hook']
+				            );
+				            });
+				         
+				           
+				            // Close the connection when your app is terminating.
+				            client.close(function (err) {
+				              if(err) throw err;
+				            });
+				          });
+				        });
+				      }
+				    );
+    
+    
+    
             }
         })
     }
 });
+
 
 
 // *** Parse bounce webhook and send to Slack hook ***
