@@ -233,7 +233,9 @@ app.get('/oauth', function(req, res) {
 				})
 
 
-
+app.get('/', function (req, res) {
+  res.send('The Postmark Bounce App is running');
+});
 
 app.post('/', function (req, res) {
   res.send('200 Everything is ok');
