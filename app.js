@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
 var UIDGenerator = require('uid-generator');
 var uidgen = new UIDGenerator();
+var path = require('path');
 
 // Store app's ID and Secret
 var clientId = process.env.CLIENT_ID;
@@ -49,8 +50,8 @@ app.get('/oauth', function(req, res) {
                 console.log(error);
             } else {
                 var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
-				res.send("Authentication was successful");
-				
+				//res.send("Authentication was successful");
+				res.sendFile(path.join(__dirname + '/html/auth_successful.html'));				
 				
         // *** INSERT DB RECORD WITH NEWLY AUTHENTICATED USER DETAILS ***
 
@@ -117,7 +118,7 @@ app.get('/oauth', function(req, res) {
 					url: slackInboundURL,
 					method: 'POST',
 					json: true,
-					body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier. Here is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + postmarkInboundURL + "`"},
+					body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + postmarkInboundURL + "`"},
 					})
 		           
 				// Close the connection
