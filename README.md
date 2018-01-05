@@ -20,7 +20,7 @@ Click the "Add to Slack" button below, and select a channel you would like to po
 
 You will receive a message in Slack with your unique bounce webhook URL. You need to add that URL to the *Bounce Webhook* field in your Postmark account (Settings / Outbound):
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/app_installed.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p>
 
 ### Step 3
 
