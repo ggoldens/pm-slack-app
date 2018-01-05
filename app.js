@@ -16,8 +16,8 @@ var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
-var envURL='localhost:5000/'
-// var envURL='https://pm-slack-bounce.herokuapp.com/'
+//var envURL='localhost:5000/'
+var envURL='https://pm-slack-bounce.herokuapp.com/'
 
 
 // Load JSON parser
@@ -49,16 +49,21 @@ app.get('/oauth', function(req, res) {
                 console.log(error);
             } else {
                 var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
-				res.json("Authentication was successful");
+				res.send("Authentication was successful");
+				// res.json(slackOAuthResponse);
 				
 				
         // *** INSERT DB RECORD ***
 
-				// Generate uuid and unique Postmark URL, store Slacks's incoming hook URL
+				// Generate uuid and unique Postmark URL, store Slacks's OAuth responses
 				
 				var uuid = uidgen.generateSync(); // Generate uuid
 				var slackInboundURL = slackOAuthResponse.incoming_webhook.url; // Read Slack's inbound hook URL
-				var postmarkInboundURL = envURL + uuid; // Generate unique inbound webhook
+				var slackTeamName = slackOAuthResponse.team_name;
+				var slackTeamID = slackOAuthResponse.team_id;
+				var slackChannel = slackOAuthResponse.incoming_webhook.channel;
+				var slackConfigURL = slackOAuthResponse.incoming_webhook.configuration_url;
+				var postmarkInboundURL = envURL + 'bounce/' + uuid; // Generate unique inbound webhook
 
 				// Set data array to be added
 								
@@ -67,6 +72,10 @@ app.get('/oauth', function(req, res) {
 				    uuid: uuid,
 				    slack_hook: slackInboundURL,
 				    pm_hook: postmarkInboundURL,
+				    team_name: slackTeamName,
+				    team_id: slackTeamID,
+				    channel: slackChannel,
+				    config_url: slackConfigURL,
 				  }
 				];
 				
@@ -89,41 +98,39 @@ app.get('/oauth', function(req, res) {
 				    
 				    if(err) throw err;
 				
-				        // Send values to console for testing
 				
-				        bounce_users.find({ uuid : uuid }).limit(1).toArray(function (err, doc) {
-				
-				          if(err) throw err;
-						  
-						  doc.forEach(function (doc) {
-				            console.log(
-				              'The slack hook is ' + doc['slack_hook'] + ', and the Postmark Inbound URL is ' + doc['pm_hook']
-				            );
-				            });
-				         
-				           
-						// Close the connection
-			            client.close(function (err) {
-			              if(err) throw err;
+		        // Send values to console for testing
+				/*
+		        bounce_users.find({ uuid : uuid }).limit(1).toArray(function (err, doc) {
+		
+		          if(err) throw err;
+				  
+				  doc.forEach(function (doc) {
+		            console.log(
+		              'The slack hook is ' + doc['slack_hook'] + ', and the Postmark Inbound URL is ' + doc['pm_hook']
+		            );
+		            });
+		        */
+				            
+				            
+				// Let the user know what they need to do
+					request({
+					url: slackInboundURL,
+					method: 'POST',
+					json: true,
+					body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is your unique Inbound Webhook URL: `" + postmarkInboundURL + "`"},
+					})
+		           
+				// Close the connection
+	            client.close(function (err) {
+	              if(err) throw err;
+			              
 			            });
-			          });
+//			          });
 			        });
 			      }
 			    );
-				
-		// Let the user know what they need to do
-		
-		request({
-			url: slackInboundURL,
-			method: 'POST',
-			json: true,
-			body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is your unique Inbound Webhook URL: `" + postmarkInboundURL + "`"},
-			})
-			
-				
-
-		
-       	}
+       		}
         })
     }
 });
@@ -165,62 +172,65 @@ app.get('/oauth', function(req, res) {
 	
 	          bounce_users.find({ uuid : uuid }).limit(1).toArray(function (err, doc) {
 	
-	          if(err) throw err;
+	          if(err) {
+		          return console.log('Couldn\'t find record)');
+		          	}
 			  
 			  doc.forEach(function (doc) {
 	            var slackInboundURL = doc['slack_hook'];
 	            console.log(
 	              'The slack hook is ' + doc['slack_hook'] + ', and the Postmark Inbound URL is ' + doc['pm_hook']);
+	              
+	              
+	         // Message to be sent to Slack hook
+				var slackMessage = 
+				 '*'
+				 + req.body.Name
+				 + ' received*\nThe email was sent from '
+				 + req.body.From
+				 + ' to '
+				 + req.body.Email
+				 + ', and the subject was "'
+				 + req.body.Subject + '".';
+				 
+				 // URL to view Bounce details in activity
+				 var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
+				 
+				 // POST to Slack hook
+				request({
+					url: slackInboundURL,
+					method: 'POST',
+					json: true,
+					body: {"text": slackMessage,
+						"attachments": [
+							{
+								"fallback": "View activity details at " + bounceDetailsURL,
+								"actions": [
+									{
+										"type": "button",
+										"name": "bounce_details",
+										"text": "View details",
+										"url": bounceDetailsURL,
+										"style": "primary"
+									}
+									]
+								}
+								]				
+							},
+						}, function (error, response, body){});
+	              
 	            });
+       
        
            
 		// Close the connection
         client.close(function (err) {
-          if(err) throw err;
-        });
-      });
-			        
-			      }
-			    );
-		
-		
-		// Message to be sent to Slack hook
-		var slackMessage = 
-		 '*'
-		 + req.body.Name
-		 + ' received*\nThe email was sent from '
-		 + req.body.From
-		 + ' to '
-		 + req.body.Email
-		 + ', and the subject was "'
-		 + req.body.Subject + '".';
-		 
-		 // URL to view Bounce details in activity
-		 var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
-		 
-		 // POST to Slack hook
-		request({
-			url: slackInboundURL,
-			method: 'POST',
-			json: true,
-			body: {"text": slackMessage,
-				"attachments": [
-					{
-						"fallback": "View activity details at " + bounceDetailsURL,
-						"actions": [
-							{
-								"type": "button",
-								"name": "bounce_details",
-								"text": "View details",
-								"url": bounceDetailsURL,
-								"style": "primary"
-							}
-							]
-						}
-						]				
-					},
-				}, function (error, response, body){});
-		})
+              if(err) throw err;
+        							});
+        						});
+			        		}
+				      );
+				})
 
 
 
