@@ -8,10 +8,20 @@ This is a very basic Slack app that sends Bounce notification messages from Post
 
 ## Installation
 
-Installation is pretty simple. Click the "Add to Slack" button below, and select a channel you would like to post messages to.
+Installation is really simple.
+
+### Step 1
+
+Click the "Add to Slack" button below, and select a channel you would like to post messages to.
 
 <a href="https://slack.com/oauth/authorize?client_id=2187776628.292902757106&scope=incoming-webhook,commands"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
-After that, you will receive a unique URL that you need to add to the *Bounce Webhook* field in your Postmark account (Settings / Outbound).
+### Step 2
 
-And that's it.
+You will receive a message in Slack with your unique bounce webhook URL. You need to add that URL to the *Bounce Webhook* field in your Postmark account (Settings / Outbound):
+
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/app_installed.jpg" border="0" alt="" /></p>
+
+### Step 3
+
+Watch the magic happen.
