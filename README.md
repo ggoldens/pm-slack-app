@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This is a very basic Slack app that sends Bounce notifications messages from Postmark to a Slack channel of your choice. It also provides a direct link to the Message Details page so that you can investigate further.
+This is a very basic Slack app that sends Bounce notification messages from Postmark to a Slack channel of your choice. It also provides a direct link to the Message Details page so that you can investigate further. Like so:
+
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/bounce_message_example.jpg" border="0" alt="" /></p>
 
 ## Installation
 
