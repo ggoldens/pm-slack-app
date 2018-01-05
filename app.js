@@ -11,13 +11,13 @@ var uidgen = new UIDGenerator();
 var clientId = process.env.CLIENT_ID;
 var clientSecret = process.env.CLIENT_SECRET;
 
-// Instantiates Express and assigns our app variable to it
+// Instantiates Express and assign our app variable to it
 var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
-//var envURL='localhost:5000/'
-var envURL='https://pm-slack.herokuapp.com/'
+var envURL='http://localhost:5000/'
+//var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 
 // *** OAUTH ***
 
-// This route handles get request to a /oauth endpoint. It handles the logic of the Slack oAuth process.
+// This route handles the GET request to the /oauth endpoint.
 
 app.get('/oauth', function(req, res) {
     if (!req.query.code) {
@@ -50,22 +50,21 @@ app.get('/oauth', function(req, res) {
             } else {
                 var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
 				res.send("Authentication was successful");
-				// res.json(slackOAuthResponse);
 				
 				
-        // *** INSERT DB RECORD ***
+        // *** INSERT DB RECORD WITH NEWLY AUTHENTICATED USER DETAILS ***
 
 				// Generate uuid and unique Postmark URL, store Slacks's OAuth responses
 				
 				var uuid = uidgen.generateSync(); // Generate uuid
+				var postmarkInboundURL = envURL + 'bounce/' + uuid; // Generate unique inbound webhook
 				var slackInboundURL = slackOAuthResponse.incoming_webhook.url; // Read Slack's inbound hook URL
 				var slackTeamName = slackOAuthResponse.team_name;
 				var slackTeamID = slackOAuthResponse.team_id;
 				var slackChannel = slackOAuthResponse.incoming_webhook.channel;
 				var slackConfigURL = slackOAuthResponse.incoming_webhook.configuration_url;
-				var postmarkInboundURL = envURL + 'bounce/' + uuid; // Generate unique inbound webhook
 
-				// Set data array to be added
+				// Define data array to be added as a new record to the DB
 								
 				var newBounceUser = [
 				  {
@@ -82,7 +81,7 @@ app.get('/oauth', function(req, res) {
 				// Connect to DB
 				
 				var uri = process.env.MONGODB_URI;
-				var dbName = 'heroku_mmj6wkv3';
+				var dbName = process.env.MONGODB_DBNAME;
 				
 				mongodb.MongoClient.connect(uri, function(err, client) {
 				  
@@ -113,12 +112,12 @@ app.get('/oauth', function(req, res) {
 		        */
 				            
 				            
-				// Let the user know what they need to do
+				// Let the user know what they need to do to make it all work
 					request({
 					url: slackInboundURL,
 					method: 'POST',
 					json: true,
-					body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is your unique Inbound Webhook URL: `" + postmarkInboundURL + "`"},
+					body: {"text": "Hello! You've successfully installed the Postmark Bounce Notifier. Here is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + postmarkInboundURL + "`"},
 					})
 		           
 				// Close the connection
@@ -135,19 +134,17 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// *** FIGURE OUT HOW TO LOOK UP THE CORRECT URLs
+// *** WHEN A NEW BOUNCE IS POSTED, LOOK UP THE CORRECT USER AND POST TO THE APPROPRIATE SLACK HOOK
 
 
 		// Set up unique routes
 		
 		app.get('/bounce/:uuid', (req, res) => {
-		  console.log('The uuid is ' + req.params.uuid)
 		  res.send('The Postmark Bounce App is running.')
 		})
 		
 		
 		app.post('/bounce/:uuid', function (req, res) {
-		     console.log('The uuid is ' + req.params.uuid)
 		     res.send('200 Everything is ok');
 		  
 		     // Commence DB lookup
@@ -157,7 +154,7 @@ app.get('/oauth', function(req, res) {
 		     // Connect to DB
 				
 			 var uri = process.env.MONGODB_URI;
-			 var dbName = 'heroku_mmj6wkv3';
+			 var dbName = process.env.MONGODB_DBNAME;
 			
 			 mongodb.MongoClient.connect(uri, function(err, client) {
 			  
