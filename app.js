@@ -17,8 +17,8 @@ var app = express();
 
 // Define a port to listen to
 var PORT = process.env.PORT || 3000;
-var envURL='http://localhost:5000/'
-//var envURL='https://pm-slack.herokuapp.com/'
+//var envURL='http://localhost:5000/'
+var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
