@@ -32,7 +32,7 @@ var dbName = process.env.MONGODB_DBNAME;
 
 // *** GLOBAL FUNCTIONS ***
 
-
+console.log("Working on code-cleanup branch");
 
 // *** OAUTH ***
 
@@ -47,86 +47,84 @@ app.get('/oauth', function(req, res) {
     console.log("Looks like we're not getting code.");
   } else {
 
-    // Do all these things if OAuth succeeds
+    // If it looks good, call authRequest function
+    
+    authRequest(req, res);
+        
+    // authRequest function
+    
+    function authRequest(req, res) {
 
-    request({
-      url: 'https://slack.com/api/oauth.access', //URL to hit
-      qs: {
-        code: req.query.code,
-        client_id: clientId,
-        client_secret: clientSecret
-      }, //Query string data
-      method: 'GET', //Specify the method
-
-      // Store Slack's OAuth response
-
-    }, function(error, response, body) {
-      if (error) {
-        console.log(error);
-      } else {
-        var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
-        res.sendFile(path.join(__dirname + '/html/auth_successful.html'));
-
-        // *** INSERT DB RECORD WITH NEWLY AUTHENTICATED USER DETAILS ***
-
-        // Generate uuid and unique Postmark URL, store Slacks's OAuth responses
-
-        var uuid = uidgen.generateSync(); // Generate uuid
-        var postmarkInboundURL = envURL + 'bounce/' + uuid; // Generate unique inbound webhook
-        var slackInboundURL = slackOAuthResponse.incoming_webhook.url; // Read Slack's inbound hook URL
-        var slackAccessToken = slackOAuthResponse.access_token;
-        var slackTeamName = slackOAuthResponse.team_name;
-        var slackTeamID = slackOAuthResponse.team_id;
-        var slackChannel = slackOAuthResponse.incoming_webhook.channel;
-        var slackConfigURL = slackOAuthResponse.incoming_webhook.configuration_url;
-
-        // Define data array to be added as a new record to the DB
-
-        var newBounceUser = [{
-          uuid: uuid,
-          pm_hook: postmarkInboundURL,
-          slack_hook: slackInboundURL,
-          slack_token: slackAccessToken,
-          team_name: slackTeamName,
-          team_id: slackTeamID,
-          channel: slackChannel,
-          config_url: slackConfigURL,
-        }];
-
-        // Connect to DB
-
-        mongodb.MongoClient.connect(dbURI, function(err, client) {
-
-          if (err) throw err;
-
-          var db = client.db(dbName);
-          var bounce_users = db.collection('bounce_users');
-
-          // Insert new user record
-
-          bounce_users.insert(newBounceUser, function(err, result) {
-
+      request({
+        url: 'https://slack.com/api/oauth.access', //URL to hit
+        qs: {
+          code: req.query.code,
+          client_id: clientId,
+          client_secret: clientSecret
+        }, //Query string data
+        method: 'GET', //Specify the method
+  
+        // Store Slack's OAuth response
+        
+      }, function(error, response, body) {
+        if (error) {
+          console.log(error);
+        } else {
+          var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
+          res.sendFile(path.join(__dirname + '/html/auth_successful.html'));
+  
+          // *** INSERT DB RECORD WITH NEWLY AUTHENTICATED USER DETAILS ***
+  
+          // Define Object for new user
+          
+          var uuid = uidgen.generateSync() // Firdt, generate a new uuid
+  
+          var newBounceUser = {
+              uuid: uuid, 
+              pm_hook: envURL + 'bounce/' + uuid, // Generate unique inbound webhook
+              slack_hook: slackOAuthResponse.incoming_webhook.url, // Read Slack's inbound hook URL
+              slack_token: slackOAuthResponse.access_token,
+              team_name: slackOAuthResponse.team_name,
+              team_id: slackOAuthResponse.team_id,
+              channel: slackOAuthResponse.incoming_webhook.channel,
+              config_url: slackOAuthResponse.incoming_webhook.configuration_url,
+            }
+  
+          // Connect to DB
+  
+          mongodb.MongoClient.connect(dbURI, function(err, client) {
+  
             if (err) throw err;
-
-            // Let the user know what they need to do to make it all work
-            request({
-              url: slackInboundURL,
-              method: 'POST',
-              json: true,
-              body: {
-                "text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + postmarkInboundURL + "`"
-              },
-            })
-
-            // Close the connection
-            client.close(function(err) {
+  
+            var db = client.db(dbName);
+            var bounce_users = db.collection('bounce_users');
+  
+            // Insert new user record
+  
+            bounce_users.insert([newBounceUser], function(err, result) {
+  
               if (err) throw err;
-
+  
+              // Let the user know what they need to do to make it all work
+              request({
+                url: newBounceUser.slack_hook,
+                method: 'POST',
+                json: true,
+                body: {
+                  "text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + newBounceUser.pm_hook + "`"
+                },
+              })
+  
+              // Close the connection
+              client.close(function(err) {
+                if (err) throw err;
+  
+              });
             });
           });
-        });
-      }
-    })
+        }
+      })
+    }
   }
 });
 
@@ -182,7 +180,7 @@ app.post('/bounce/:uuid', function(req, res) {
         ', and the subject was "' +
         req.body.Subject + '".';
 
-      // URL to view Bounce details in activity
+      // URL to view Bounce details in Postmark activity
       var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
 
       // POST to Slack hook
