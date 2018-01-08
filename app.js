@@ -23,7 +23,6 @@ var envURL = 'http://localhost:5000/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
 //var envURL='https://pm-slack.herokuapp.com/'
 
-console.log (envURL);
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -40,11 +39,10 @@ var dbName = process.env.MONGODB_DBNAME;
 app.get('/oauth', function(req, res) {
   if (!req.query.code) {
     res.status(500);
-    res.send({
-      "Error": "Looks like we're not getting code."
-    });
+    res.send({ "Error": "Looks like we're not getting code." });
     console.log("Looks like we're not getting code.");
-  } else {
+    return;
+  } 
 
     // If it looks good, call authRequest function
     
@@ -56,20 +54,22 @@ app.get('/oauth', function(req, res) {
 
       request({
         url: 'https://slack.com/api/oauth.access', //URL to hit
-        qs: {
+        qs: {                                      //Query string data
           code: req.query.code,
           client_id: clientId,
           client_secret: clientSecret,
           redirect_uri: envURL + 'oauth'
-        }, //Query string data
-        method: 'GET', //Specify the method
+        }, 
+        method: 'GET',                              //Specify the method
   
         // Store Slack's OAuth response
         
       }, function(error, response, body) {
         if (error) {
-          console.log(error);
-        } else {
+          console.log("Looks like there's something wrong with Slack's response.");
+          res.send({ "Error": "Looks like there's something wrong with Slack's response." });
+          return;
+        } 
           var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
           res.sendFile(path.join(__dirname + '/html/auth_successful.html'));
   
@@ -94,7 +94,11 @@ app.get('/oauth', function(req, res) {
   
           mongodb.MongoClient.connect(dbURI, function(err, client) {
   
-            if (err) throw err;
+            if (err) {
+              console.log('Can\'t connect to the database');
+              res.send({ "Error": "Looks like we can't connect to the database." });
+              return;
+            }
   
             var db = client.db(dbName);
             var bounce_users = db.collection('bounce_users');
@@ -103,7 +107,11 @@ app.get('/oauth', function(req, res) {
   
             bounce_users.insert([newBounceUser], function(err, result) {
   
-              if (err) throw err;
+              if (err) {
+                console.log('Can\'t insert the record');
+                res.send({ "Error": "Looks like we can't insert the record." });
+                return;
+              }
   
               // Let the user know what they need to do to make it all work
               request({
@@ -117,15 +125,18 @@ app.get('/oauth', function(req, res) {
   
               // Close the connection
               client.close(function(err) {
-                if (err) throw err;
+                if (err) {
+                  console.log('Can\'t close the connection');
+                  res.send({ "Error": "Looks like we can't close the database connection." });
+                  return;
+                }
   
               });
             });
           });
-        }
+        
       })
     }
-  }
 });
 
 // *** WHEN A NEW BOUNCE IS POSTED, LOOK UP THE CORRECT USER IN THE DB AND POST TO THE APPROPRIATE SLACK HOOK
@@ -149,7 +160,11 @@ app.post('/bounce/:uuid', function(req, res) {
 
   mongodb.MongoClient.connect(dbURI, function(err, client) {
 
-    if (err) throw err;
+      if (err) {
+        console.log('Can\'t connect to the database');
+        res.send({ "Error": "Looks like we can't connect to the database." });
+        return;
+      }
 
     var db = client.db(dbName);
     var bounce_users = db.collection('bounce_users');
@@ -162,7 +177,9 @@ app.post('/bounce/:uuid', function(req, res) {
     }, function(err, doc) {
 
       if (err) {
-        return console.log('Couldn\'t find record)');
+        console.log('Can\'t find record');
+        res.send({ "Error": "Looks like we can't find the database record." });
+        return;
       }
 
       var slackInboundURL = doc['slack_hook'];
@@ -207,8 +224,12 @@ app.post('/bounce/:uuid', function(req, res) {
 
       // Close the DB connection
       client.close(function(err) {
-        if (err) throw err;
-
+      if (err) {
+        console.log('Can\'t close the connection');
+        res.send({ "Error": "Looks like we can't close the database connection." });
+        return;
+      }
+      
       });
     });
   });
