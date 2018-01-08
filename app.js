@@ -19,9 +19,11 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 
 // Environment: Testing vs. Production
-//var envURL = 'http://localhost:5000/'
+var envURL = 'http://localhost:5000/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
-var envURL='https://pm-slack.herokuapp.com/'
+//var envURL='https://pm-slack.herokuapp.com/'
+
+console.log (envURL);
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -30,10 +32,6 @@ app.use(bodyParser.json());
 
 var dbURI = process.env.MONGODB_URI;
 var dbName = process.env.MONGODB_DBNAME;
-
-// *** GLOBAL FUNCTIONS ***
-
-console.log("Working on code-cleanup branch");
 
 // *** OAUTH ***
 
@@ -61,7 +59,8 @@ app.get('/oauth', function(req, res) {
         qs: {
           code: req.query.code,
           client_id: clientId,
-          client_secret: clientSecret
+          client_secret: clientSecret,
+          redirect_uri: envURL + '/oauth'
         }, //Query string data
         method: 'GET', //Specify the method
   
