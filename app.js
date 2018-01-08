@@ -22,9 +22,16 @@ var PORT = process.env.PORT || 3000;
 var envURL='http://localhost:5000/'
 //var envURL='https://pm-slack.herokuapp.com/'
 
-
 // Load JSON parser
 app.use(bodyParser.json());
+
+// *** GLOBAL VARIABLES ***
+
+var dbURI = process.env.MONGODB_URI;
+var dbName = process.env.MONGODB_DBNAME;
+
+// *** GLOBAL FUNCTIONS ***
+
 
 
 // *** OAUTH ***
@@ -84,14 +91,12 @@ app.get('/oauth', function(req, res) {
 				
 				// Connect to DB
 				
-				var uri = process.env.MONGODB_URI;
-				var dbName = process.env.MONGODB_DBNAME;
-				mongodb.MongoClient.connect(uri, function(err, client) {
+				mongodb.MongoClient.connect(dbURI, function(err, client) {
 				  
-				  if(err) throw err;
+				if(err) throw err;
 				  
-				  var db = client.db(dbName);				
-				  var bounce_users = db.collection('bounce_users');
+				var db = client.db(dbName);				
+				var bounce_users = db.collection('bounce_users');
 				
 				// Insert new user record
 				
@@ -139,14 +144,12 @@ app.get('/oauth', function(req, res) {
 		  
 		     // Connect to DB
 				
-			 var uri = process.env.MONGODB_URI;
-			 var dbName = process.env.MONGODB_DBNAME;
-			 mongodb.MongoClient.connect(uri, function(err, client) {
+			 mongodb.MongoClient.connect(dbURI, function(err, client) {
 			  
-			  if(err) throw err;
+			 if(err) throw err;
 			  
-			  var db = client.db(dbName);
-			  var bounce_users = db.collection('bounce_users');
+			 var db = client.db(dbName);
+			 var bounce_users = db.collection('bounce_users');
 				
 				
 	         // Find the right user
