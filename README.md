@@ -14,10 +14,10 @@ Installation is really simple.
 
 Click the "Add to Slack" button below, and select a channel you would like to post messages to.
 
-localhost:
+localhost: &nbsp;
 <a href="https://slack.com/oauth/authorize?client_id=2187776628.292902757106&scope=incoming-webhook,commands&redirect_uri=http://localhost:5000/oauth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
-heroku:
+heroku: &nbsp;
 <a href="https://slack.com/oauth/authorize?client_id=2187776628.292902757106&scope=incoming-webhook,commands&redirect_uri=https://pm-slack.herokuapp.com/oauth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
 
