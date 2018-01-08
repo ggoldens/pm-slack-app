@@ -60,7 +60,7 @@ app.get('/oauth', function(req, res) {
           code: req.query.code,
           client_id: clientId,
           client_secret: clientSecret,
-          redirect_uri: envURL + '/oauth'
+          redirect_uri: envURL + 'oauth'
         }, //Query string data
         method: 'GET', //Specify the method
   
