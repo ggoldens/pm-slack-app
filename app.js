@@ -20,9 +20,9 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Testing vs. Production
 //var envURL = 'http://localhost:5000/'
-var envURL = 'https://685668d7.ngrok.io/'
+//var envURL = 'https://685668d7.ngrok.io/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
-//var envURL='https://pm-slack.herokuapp.com/'
+var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
