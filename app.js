@@ -20,9 +20,9 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Testing vs. Production
 //var envURL = 'http://localhost:5000/'
-//var envURL = 'https://685668d7.ngrok.io/'
+var envURL = 'https://685668d7.ngrok.io/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
-var envURL='https://pm-slack.herokuapp.com/'
+//var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
@@ -238,7 +238,7 @@ app.post('/bounce/:uuid', function(req, res) {
 });
 
 
-// Add /ispostmarkdown slash command
+// Add the /postmark slash command
 
 app.get('/command/postmark', function(req, res) {
   
@@ -248,41 +248,54 @@ app.get('/command/postmark', function(req, res) {
 
 app.post('/command/postmark', function(req, res) {
   
-  res.status(200).send('');
+  res.status(200).send(''); //Send empty 200 response immediately
   
-  var slashResponseURL = req.body.response_url;
-  var slashText = req.body.text;
+  var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
+  var slashText = req.body.text; // Store the text used with the /postmark command 
   
-  if (slashText === "" || slashText === "help") {  // Provide help
+  // Provide help
+  if (slashText === "" || slashText === "help") {  
     request({
     url: slashResponseURL,
     method: 'POST',
     json: true,
     body: {
       "response_type": "ephemeral",
-      "text": "To get the current Postmark status, use `/postmark status`.\n Um, unfortunately that's all we've got at the moment. More coming, though."
+      "text": "`/postmark status` --> Get the current Postmark app status.\n`/postmark docs` --> Posts the developer docs URL for easy access."
       },
     }, function(error, response, body) {});
   
-  } else if (slashText === "status") {  // Request current status
+  // Request current status
+  } else if (slashText === "status") {  
 
     request.get('https://status.postmarkapp.com/api/1.0/status', function (err, res, body) {
       
-      var pmStatusResponse = JSON.parse(body);
-  
-      // POST to Slack hook
+      var pmStatusResponse = JSON.parse(body); // Store the API response
       
       request({
-          url: slashResponseURL,
-          method: 'POST',
-          json: true,
-          body: {
-            "response_type": "in_channel",
-            "text": 'Postmark\'s status is currently *' + pmStatusResponse.status + '*.\nFor more details see https://status.postmarkapp.com/',
-            },
-          }, function(error, response, body) {});
+        url: slashResponseURL,
+        method: 'POST',
+        json: true,
+        body: {
+          "response_type": "in_channel",
+          "text": 'Postmark\'s status is currently *' + pmStatusResponse.status + '*.\nFor more details see https://status.postmarkapp.com/',
+          },
+        }, function(error, response, body) {});
         });
+        
+  // Post the docs URL
+  } else if (slashText === "docs") {  
       
+      request({
+        url: slashResponseURL,
+        method: 'POST',
+        json: true,
+        body: {
+          "response_type": "ephemeral",
+          "text": 'API documentation is at https://postmarkapp.com/developer',
+          },
+        }, function(error, response, body) {});
+    
   } else {  // If there isn't a match to anything
       request({
       url: slashResponseURL,
