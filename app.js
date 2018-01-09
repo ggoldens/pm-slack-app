@@ -16,16 +16,18 @@ var clientSecret = process.env.CLIENT_SECRET;
 var app = express();
 
 // Define a port to listen to
-var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 4390;
 
 // Environment: Testing vs. Production
-var envURL = 'http://localhost:5000/'
+//var envURL = 'http://localhost:5000/'
+//var envURL = 'https://685668d7.ngrok.io/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
-//var envURL='https://pm-slack.herokuapp.com/'
+var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // *** GLOBAL VARIABLES ***
 
@@ -235,6 +237,40 @@ app.post('/bounce/:uuid', function(req, res) {
   });
 });
 
+
+// Add /ispostmarkdown slash command
+
+app.get('/command/ispostmarkdown', function(req, res) {
+  
+  res.sendStatus(200)
+  
+})
+
+app.post('/command/ispostmarkdown', function(req, res) {
+  
+  //res.sendStatus(200)
+  
+  var downResponseURL = req.body.response_url;
+  console.log (downResponseURL);
+
+  // Get current status
+    request.get('https://status.postmarkapp.com/api/1.0/status', function (err, res, body) {
+      
+      var pmStatusResponse = JSON.parse(body);
+  
+      // POST to Slack hook
+      
+      request({
+          url: downResponseURL,
+          method: 'POST',
+          json: true,
+          body: {
+            "response_type": 'in_channel',
+            "text": 'Postmark\'s status is currently *' + pmStatusResponse.status + '*.\nFor more details see https://status.postmarkapp.com/',
+            },
+          }, function(error, response, body) {});
+        })
+      })
 
 // Basic routes
 
