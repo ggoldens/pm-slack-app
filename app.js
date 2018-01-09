@@ -20,9 +20,9 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Testing vs. Production
 //var envURL = 'http://localhost:5000/'
-//var envURL = 'https://685668d7.ngrok.io/'
+var envURL = 'https://685668d7.ngrok.io/'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
-var envURL='https://pm-slack.herokuapp.com/'
+//var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
@@ -240,20 +240,32 @@ app.post('/bounce/:uuid', function(req, res) {
 
 // Add /ispostmarkdown slash command
 
-app.get('/command/ispostmarkdown', function(req, res) {
+app.get('/command/postmark', function(req, res) {
   
   res.sendStatus(200)
   
 })
 
-app.post('/command/ispostmarkdown', function(req, res) {
+app.post('/command/postmark', function(req, res) {
   
-  //res.sendStatus(200)
+  res.status(200).send('');
   
-  var downResponseURL = req.body.response_url;
-  console.log (downResponseURL);
+  var slashResponseURL = req.body.response_url;
+  var slashText = req.body.text;
+  
+  if (slashText === "" || slashText === "help") {  // Provide help
+    request({
+    url: slashResponseURL,
+    method: 'POST',
+    json: true,
+    body: {
+      "response_type": "ephemeral",
+      "text": "To get the current Postmark status, use `/postmark status`.\n Um, unfortunately that's all we've got at the moment. More coming, though."
+      },
+    }, function(error, response, body) {});
+  
+  } else if (slashText === "status") {  // Request current status
 
-  // Get current status
     request.get('https://status.postmarkapp.com/api/1.0/status', function (err, res, body) {
       
       var pmStatusResponse = JSON.parse(body);
@@ -261,16 +273,30 @@ app.post('/command/ispostmarkdown', function(req, res) {
       // POST to Slack hook
       
       request({
-          url: downResponseURL,
+          url: slashResponseURL,
           method: 'POST',
           json: true,
           body: {
-            "response_type": 'in_channel',
+            "response_type": "in_channel",
             "text": 'Postmark\'s status is currently *' + pmStatusResponse.status + '*.\nFor more details see https://status.postmarkapp.com/',
             },
           }, function(error, response, body) {});
-        })
-      })
+        });
+      
+  } else {  // If there isn't a match to anything
+      request({
+      url: slashResponseURL,
+      method: 'POST',
+      json: true,
+      body: {
+        "response_type": "ephemeral",
+        "text": "Sorry, that command doesn't work. Use `/postmark help` for a list of commands.",
+        },
+      }, function(error, response, body) {});
+    };
+      
+  })
+      
 
 // Basic routes
 
