@@ -8,7 +8,7 @@ This Slack app works with an active [Postmark](https://postmarkapp.com/) account
 
 Send Bounce notification messages from Postmark to a Slack channel of your choice. The notification also provides a direct link to the Message Details page so that you can investigate further. Like so:
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/bounce_message_example.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/bounce_example.jpg" border="0" alt="" /></p>
 
 ### `/postmark` command
 
