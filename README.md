@@ -14,7 +14,7 @@ Send Bounce notification messages from Postmark to a Slack channel of your choic
 
 We'll continue to add more functionality to the `/postmark` slash command, but for now here's what you can do:
 
-* `/postmark status` --> Provides the current status of the app, with basic incident details and a link to view the full incident page
+* `/postmark status` --> Provides the current status of Postmark's services, with basic incident details and a link to view the full incident page
 * `/postmark docs` --> Post a URL to the API documentation for easy access
 
 ## Installation
