@@ -1,10 +1,21 @@
-# Postmark Bounce Notifier
+# Postmark Bot
 
 ## Introduction
 
-This is a very basic Slack app that sends Bounce notification messages from Postmark to a Slack channel of your choice. It also provides a direct link to the Message Details page so that you can investigate further. Like so:
+_Postmark Bot_ is a Slack app that can currently do the following:
+
+### Bounce notifications
+
+Send Bounce notification messages from Postmark to a Slack channel of your choice. It also provides a direct link to the Message Details page so that you can investigate further. Like so:
 
 <p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/bounce_message_example.jpg" border="0" alt="" /></p>
+
+### `/postmark` command
+
+We'll continue to add more slash commands, but for now here's what you can do:
+
+* `/postmark status` --> Provides the current status of the app, with basic incident details and a link to view the full incident page
+* `/postmark docs` --> Post a URL to the API documentation for easy access
 
 ## Installation
 
@@ -12,7 +23,7 @@ Installation is really simple.
 
 ### Step 1
 
-Click the "Add to Slack" button below, and select a channel you would like to post messages to.
+Click the "Add to Slack" button below, and select a channel you would like to post Bounce notifications to. The `/postmark` command will work in any channel.
 
 localhost:
 
@@ -25,10 +36,10 @@ heroku:
 
 ### Step 2
 
-You will receive a message in Slack with your unique bounce webhook URL. You need to add that URL to the *Bounce Webhook* field in your Postmark account (Settings / Outbound):
+You will receive a message in Slack with your unique bounce webhook URL. If you'd like to see bounce notifications in your chosen channel you need to add that URL to the *Bounce Webhook* field in your Postmark account (Settings / Outbound):
 
 <p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p>
 
 ### Step 3
 
-Watch the magic happen.
+Enjoy, and let us know if you run into issues and if there are other things you'd like the Postmark Bot to do.

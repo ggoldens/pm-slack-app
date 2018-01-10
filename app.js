@@ -121,7 +121,7 @@ app.get('/oauth', function(req, res) {
                 method: 'POST',
                 json: true,
                 body: {
-                  "text": "Hello! You've successfully installed the Postmark Bounce Notifier.\nHere is the unique Inbound Webhook URL you should add to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + newBounceUser.pm_hook + "`"
+                  "text": "Hello! You've successfully installed the Postmark Bot. Type `/postmark help` for the commands you can use.\nIf you'd like to get Bounce notifications, add this URL to the *Bounce Webhook* field in your *Postmark Outbound Settings*:\n`" + newBounceUser.pm_hook + "`"
                 },
               })
   
@@ -132,7 +132,6 @@ app.get('/oauth', function(req, res) {
                   res.send({ "Error": "Looks like we can't close the database connection." });
                   return;
                 }
-  
               });
             });
           });
