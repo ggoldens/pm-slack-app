@@ -207,16 +207,23 @@ app.post('/bounce/:uuid', function(req, res) {
         method: 'POST',
         json: true,
         body: {
-          "text": slackMessage,
           "attachments": [{
             "fallback": "View activity details at " + bounceDetailsURL,
+            "fields": [
+              {
+                  "title": req.body.Name + ' received',
+                  "value": 'The email was sent from ' + req.body.From + ' to ' + req.body.Email + ', and the subject is "' + req.body.Subject + '".',
+                  "short": false
+              },                
+          ],
             "actions": [{
               "type": "button",
               "name": "bounce_details",
               "text": "View details",
               "url": bounceDetailsURL,
               "style": "primary"
-            }]
+            }],
+            "color": "warning"
           }]
         },
       }, function(error, response, body) {});
@@ -347,7 +354,7 @@ app.post('/command/postmark', function(req, res) {
                 			  "url": incidentURL
                 			}
                       ],
-                    "color": statusColor  
+                  "color": statusColor  
               }]
             },
           }, function(error, response, body) {});
