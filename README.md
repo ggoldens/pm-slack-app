@@ -23,7 +23,7 @@ Installation is really simple.
 
 ### Step 1
 
-Click the "Add to Slack" button below, and select a channel you would like to post Bounce notifications to. The `/postmark` command will work in any channel.
+Click the "Add to Slack" button below, and select a channel you would like to post Bounce notifications to. *You'll only get this once, so please save it immediately.* The `/postmark` command will work in any channel.
 
 <a href="https://slack.com/oauth/authorize?client_id=2187776628.292902757106&scope=incoming-webhook,commands&redirect_uri=https://pm-slack.herokuapp.com/oauth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
