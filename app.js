@@ -4,6 +4,7 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
+var moment = require('moment'); // Time parser
 var UIDGenerator = require('uid-generator');
 var uidgen = new UIDGenerator();
 var path = require('path');
@@ -20,7 +21,7 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Testing vs. Production
 //var envURL = 'http://localhost:5000/'
-var envURL = 'https://685668d7.ngrok.io/'
+var envURL = 'https://086a5127.ngrok.io'
 //var envURL='https://pm-slack-pr-1.herokuapp.com/'
 //var envURL='https://pm-slack.herokuapp.com/'
 
@@ -79,7 +80,7 @@ app.get('/oauth', function(req, res) {
   
           // Define Object for new user
           
-          var uuid = uidgen.generateSync() // Firdt, generate a new uuid
+          var uuid = uidgen.generateSync() // First, generate a new uuid
   
           var newBounceUser = {
               uuid: uuid, 
@@ -251,9 +252,27 @@ app.post('/command/postmark', function(req, res) {
   res.status(200).send(''); //Send empty 200 response immediately
   
   var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
+  var slashToken = req.body.token; // Store token to validate the request is legit
   var slashText = req.body.text; // Store the text used with the /postmark command 
   
+  // Validate the request is legit
+  
+  if (slashToken !== process.env.SLASH_TOKEN) {
+    console.log("Tokens don't match");
+    request({
+      url: slashResponseURL,
+      method: 'POST',
+      json: true,
+      body: {
+        "response_type": "ephemeral",
+        "text": 'Sorry, it looks like this request didn\'t originate from Slack.',
+        },
+      }, function(error, response, body) {});
+    return;
+  }
+  
   // Provide help
+  
   if (slashText === "" || slashText === "help") {  
     request({
     url: slashResponseURL,
@@ -265,23 +284,78 @@ app.post('/command/postmark', function(req, res) {
       },
     }, function(error, response, body) {});
   
-  // Request current status
+  // Post current status
+  
   } else if (slashText === "status") {  
 
     request.get('https://status.postmarkapp.com/api/1.0/status', function (err, res, body) {
       
-      var pmStatusResponse = JSON.parse(body); // Store the API response
+      var pmStatusResponse = JSON.parse(body); // Store the "status" API response
       
-      request({
-        url: slashResponseURL,
-        method: 'POST',
-        json: true,
-        body: {
-          "response_type": "in_channel",
-          "text": 'Postmark\'s status is currently *' + pmStatusResponse.status + '*.\nFor more details see https://status.postmarkapp.com/',
-          },
-        }, function(error, response, body) {});
+      request.get('https://status.postmarkapp.com/api/1.0/last_incident', function (err, res, body) {
+      
+        var pmLastIncident = JSON.parse(body); // Grab the last incident and store the response
+        
+        // Define variables needed for update
+        var lastUpdate = pmLastIncident.updates[pmLastIncident.updates.length - 1];
+        var incidentURL = 'https://status.postmarkapp.com/incidents/' + pmLastIncident.id;
+        var lastUpdateDate = moment(pmLastIncident.updated_at).format('D MMMM YYYY');
+        var lastUpdateTime = moment(pmLastIncident.updated_at).format('h:mm:ss A');
+        
+        // Set correct color for slack update
+        if (pmStatusResponse.status === "UP") {
+              var statusColor = "good"  
+              } else {
+                var statusColor = "danger"
+              };
+        
+        // Post message to Slack
+        
+        request({
+          url: slashResponseURL,
+          method: 'POST',
+          json: true,
+          body: {
+            "response_type": "in_channel",
+            "attachments": [
+              {
+                  "fallback": "You can view the current Postmark status here: https://status.postmarkapp.com/",
+                  "fields": [
+                      {
+                          "title": "Current Postmark status",
+                          "value": pmStatusResponse.status,
+                          "short": true
+                      },                
+      				{
+                          "title": "Last incident update",
+                          "value": lastUpdateDate + ' at ' + lastUpdateTime,
+                          "short": true
+                      },
+      				{
+                          "title": "Last incident details",
+                          "value": incidentTitle = pmLastIncident.title,
+                          "short": false
+                      },
+                      {
+                          "title": "Last incident update",
+                          "value": lastUpdate.body,
+                          "short": false
+                      }
+                  ],
+      			      "actions": [
+                			{
+                			  "type": "button",
+                			  "text": "View incident details",
+                			  "url": incidentURL
+                			}
+                      ],
+                    "color": statusColor  
+              }]
+            },
+          }, function(error, response, body) {});
         });
+      });     
+        
         
   // Post the docs URL
   } else if (slashText === "docs") {  
