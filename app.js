@@ -298,7 +298,7 @@ app.post('/command/postmark', function(req, res) {
         var lastUpdate = pmLastIncident.updates[pmLastIncident.updates.length - 1];
         var incidentURL = 'https://status.postmarkapp.com/incidents/' + pmLastIncident.id;
         var lastUpdateDate = moment(pmLastIncident.updated_at).format('D MMMM YYYY');
-        var lastUpdateTime = moment(pmLastIncident.updated_at).format('h:mm:ss A');
+        var lastUpdateTime = moment(pmLastIncident.updated_at).format('h:mm A');
         
         // Set correct color for slack update
         if (pmStatusResponse.status === "UP") {
