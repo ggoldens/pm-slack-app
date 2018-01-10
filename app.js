@@ -195,7 +195,7 @@ app.post('/bounce/:uuid', function(req, res) {
         req.body.From +
         ' to ' +
         req.body.Email +
-        ', and the subject was "' +
+        ', and the subject is "' +
         req.body.Subject + '".';
 
       // URL to view Bounce details in Postmark activity
