@@ -19,7 +19,7 @@ We'll continue to add more functionality to the `/postmark` slash command, but f
 
 Here's an example of what a status message looks like:
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/incident_example.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/status_example.jpg" border="0" alt="" /></p>
 
 ## Installation
 
