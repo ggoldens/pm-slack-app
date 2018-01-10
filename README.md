@@ -17,6 +17,10 @@ We'll continue to add more functionality to the `/postmark` slash command, but f
 * `/postmark status` --> Provides the current status of Postmark's services, with basic incident details and a link to view the full incident page
 * `/postmark docs` --> Post a URL to the API documentation for easy access
 
+Here's an example of what a status message looks like:
+
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/incident_example.jpg" border="0" alt="" /></p>
+
 ## Installation
 
 Installation is really simple.
