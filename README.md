@@ -34,6 +34,10 @@ You will receive a message in Slack with your unique bounce webhook URL. **You'l
 
 <p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p> 
 
+**Notes:**
+* You can currently only specify one bounce webhook URL in your account. We know that means that you may not be able to add this URL since you may already have your own webhook URL in use. We'll be working on a solution for this limitation.
+* To stop receiving bounce notifications, simply remove the URL from your Postmark account.
+
 ### Step 3
 
 Enjoy, and let us know if you run into issues and if there are other things you'd like the Postmark Bot to do.
