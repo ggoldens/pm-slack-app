@@ -337,12 +337,12 @@ app.post('/command/postmark', function(req, res) {
                           "short": true
                       },
       				{
-                          "title": "Last incident details",
+                          "title": "Last incident title",
                           "value": incidentTitle = pmLastIncident.title,
                           "short": false
                       },
                       {
-                          "title": "Last incident update",
+                          "title": "Last incident details",
                           "value": lastUpdate.body,
                           "short": false
                       }
