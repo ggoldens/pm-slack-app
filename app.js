@@ -20,8 +20,8 @@ var app = express();
 var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
-//var envURL = 'http://localhost:5000/'
-var envURL='https://pm-slack.herokuapp.com/'
+var envURL = 'http://localhost:5000/'
+//var envURL='https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
@@ -402,7 +402,7 @@ app.post('/command/postmark', function(req, res) {
 // Basic routes
 
 app.get('/', function(req, res) {
-  res.send('The Postmark Bounce App is running');
+  res.sendFile(path.join(__dirname + '/html/postmark-slack-app.html'));
 });
 
 app.post('/', function(req, res) {
