@@ -215,7 +215,7 @@ app.post('/bounce/:uuid', function(req, res) {
             "fields": [
               {
                   "title": req.body.Name + ' received',
-                  "value": 'The email was sent from ' + req.body.From + ' to ' + req.body.Email + '.\nThe subject is "' + req.body.Subject + '".',
+                  "value": 'The email was sent to ' + req.body.Email + '.\nThe subject is *' + req.body.Subject + '*.',
                   "short": false
               },
               {
