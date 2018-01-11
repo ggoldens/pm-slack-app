@@ -13,7 +13,7 @@ var path = require('path');
 var clientId = process.env.CLIENT_ID;
 var clientSecret = process.env.CLIENT_SECRET;
 
-// Instantiates Express and assign our app variable to it
+// Instantiate Express
 var app = express();
 
 // Define a port to listen to
