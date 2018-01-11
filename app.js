@@ -19,9 +19,8 @@ var app = express();
 // Define a port to listen to
 var PORT = process.env.PORT || 4390;
 
-// Environment: Testing vs. Production
+// Environment: Local vs. Production
 //var envURL = 'http://localhost:5000/'
-//var envURL = 'https://086a5127.ngrok.io'
 var envURL='https://pm-slack.herokuapp.com/'
 
 
@@ -86,7 +85,7 @@ app.get('/oauth', function(req, res) {
               uuid: uuid, 
               pm_hook: envURL + 'bounce/' + uuid, // Generate unique inbound webhook
               slack_hook: slackOAuthResponse.incoming_webhook.url, // Read Slack's inbound hook URL
-              //slack_token: slackOAuthResponse.access_token, //Not storing token for now - not needed for scopes requested, so it's safer to leave it out
+              //slack_token: slackOAuthResponse.access_token, *** Not storing token for now - not needed for scopes requested, so it's safer to leave it out
               user_id: slackOAuthResponse.user_id,
               team_name: slackOAuthResponse.team_name,
               team_id: slackOAuthResponse.team_id,
@@ -146,7 +145,6 @@ app.get('/oauth', function(req, res) {
 });
 
 // *** WHEN A NEW BOUNCE IS POSTED, LOOK UP THE CORRECT USER IN THE DB AND POST TO THE APPROPRIATE SLACK HOOK
-
 
 // Set up unique routes
 
