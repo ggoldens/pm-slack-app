@@ -94,7 +94,7 @@ app.get('/oauth', function(req, res) {
               channel_id: slackOAuthResponse.incoming_webhook.channel_id,
               config_url: slackOAuthResponse.incoming_webhook.configuration_url,
               auth_time_unix: moment(now).format("X"), //Store when application was authenticated
-              auth_time_local: moment(now).format("YYYY-MM-DD HH:mm:ss") //Store a formatted, local timestamp as well 
+              auth_time_utc: moment(now).format("YYYY-MM-DD HH:mm:ss") //Store a formatted, UTC timestamp as well 
             }
   
           // Connect to DB
