@@ -33,7 +33,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var dbURI = process.env.MONGODB_URI;
 var dbName = process.env.MONGODB_DBNAME;
-var now = moment();
 
 // *** OAUTH ***
 
@@ -81,6 +80,7 @@ app.get('/oauth', function(req, res) {
           // Define Object for new user
           
           var uuid = uidgen.generateSync() // First, generate a new uuid
+          var now = moment(); // Set the current time
   
           var newBounceUser = {
               uuid: uuid, 
