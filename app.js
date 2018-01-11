@@ -33,6 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var dbURI = process.env.MONGODB_URI;
 var dbName = process.env.MONGODB_DBNAME;
+var now = moment();
 
 // *** OAUTH ***
 
@@ -85,11 +86,15 @@ app.get('/oauth', function(req, res) {
               uuid: uuid, 
               pm_hook: envURL + 'bounce/' + uuid, // Generate unique inbound webhook
               slack_hook: slackOAuthResponse.incoming_webhook.url, // Read Slack's inbound hook URL
-              slack_token: slackOAuthResponse.access_token,
+              //slack_token: slackOAuthResponse.access_token, //Not storing token for now - not needed for scopes requested, so it's safer to leave it out
+              user_id: slackOAuthResponse.user_id,
               team_name: slackOAuthResponse.team_name,
               team_id: slackOAuthResponse.team_id,
               channel: slackOAuthResponse.incoming_webhook.channel,
+              channel_id: slackOAuthResponse.incoming_webhook.channel_id,
               config_url: slackOAuthResponse.incoming_webhook.configuration_url,
+              auth_time_unix: moment(now).format("X"), //Store when application was authenticated
+              auth_time_local: moment(now).format("YYYY-MM-DD HH:mm:ss") //Store a formatted, local timestamp as well 
             }
   
           // Connect to DB
@@ -333,7 +338,7 @@ app.post('/command/postmark', function(req, res) {
                       },                
       				{
                           "title": "Last incident update",
-                          "value": lastUpdateDate + ' at ' + lastUpdateTime,
+                          "value": lastUpdateDate + ' at ' + lastUpdateTime + ' UTC',
                           "short": true
                       },
       				{
