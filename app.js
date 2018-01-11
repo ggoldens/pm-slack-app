@@ -119,7 +119,7 @@ app.get('/oauth', function(req, res) {
                 return;
               }
   
-              // Let the user know what they need to do to make it all work
+              // Let the user know what they need to do to make bounce notifications work
               request({
                 url: newBounceUser.slack_hook,
                 method: 'POST',
@@ -156,9 +156,21 @@ app.get('/bounce/:uuid', (req, res) => {
 app.post('/bounce/:uuid', function(req, res) {
   res.send('200 Everything is ok');
 
-  // Commence DB lookup
+  // Define variables we're going to need
 
   var uuid = req.params.uuid;
+  
+  if (req.body.Inactive == true) {
+    var emailActive = 'INACTIVE';
+      if (req.body.CanActivate == true) {
+        var activateMessage = "The receiving email address is marked as *INACTIVE*.\nThis email address *CAN* be reactivated.";
+      } else {
+        var activateMessage = "The receiving email address is marked as *INACTIVE*.\nThis email address can *NOT* be reactivated.";
+      }
+  } else {
+    var emailActive = 'ACTIVE';
+    var activateMessage = "The receiving email address is marked as *ACTIVE*. This email address does not need to be reactivated.";
+  }
 
   // Connect to DB
 
@@ -189,18 +201,6 @@ app.post('/bounce/:uuid', function(req, res) {
       var slackInboundURL = doc['slack_hook'];
       console.log('Record found: ' + doc['slack_hook']);
 
-
-      // Message to be sent to Slack hook
-      var slackMessage =
-        '*' +
-        req.body.Name +
-        ' received*\nThe email was sent from ' +
-        req.body.From +
-        ' to ' +
-        req.body.Email +
-        ', and the subject is "' +
-        req.body.Subject + '".';
-
       // URL to view Bounce details in Postmark activity
       var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
 
@@ -215,9 +215,14 @@ app.post('/bounce/:uuid', function(req, res) {
             "fields": [
               {
                   "title": req.body.Name + ' received',
-                  "value": 'The email was sent from ' + req.body.From + ' to ' + req.body.Email + ', and the subject is "' + req.body.Subject + '".',
+                  "value": 'The email was sent from ' + req.body.From + ' to ' + req.body.Email + '.\nThe subject is "' + req.body.Subject + '".',
                   "short": false
-              },                
+              },
+              {
+                  "title": 'Deactivation details',
+                  "value": activateMessage,
+                  "short": false
+              },               
           ],
             "actions": [{
               "type": "button",
@@ -226,7 +231,8 @@ app.post('/bounce/:uuid', function(req, res) {
               "url": bounceDetailsURL,
               "style": "primary"
             }],
-            "color": "warning"
+            "color": "warning",
+            "mrkdwn_in": ["fields"]
           }]
         },
       }, function(error, response, body) {});
