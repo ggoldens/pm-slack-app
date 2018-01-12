@@ -15,6 +15,9 @@
     "MONGODB_URI": {
       "required": true
     }
+    "SLASH_TOKEN": {
+      "required": true
+    }
   },
   "formation": {
     "web": {
