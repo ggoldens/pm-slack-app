@@ -149,7 +149,7 @@ app.get('/oauth', function(req, res) {
 // Set up unique routes
 
 app.get('/bounce/:uuid', (req, res) => {
-  res.send('The Postmark Bounce App is running.')
+  res.sendFile(path.join(__dirname + '/html/postmark-slack-app.html'));
 })
 
 
@@ -211,8 +211,8 @@ app.post('/bounce/:uuid', function(req, res) {
         json: true,
         body: {
           "attachments": [{
-            "fallback": "View activity details at " + bounceDetailsURL,
-            "pretext": "New bounce received",
+            "fallback": "View Bounce details at " + bounceDetailsURL,
+            "pretext": "New Bounce received",
             "fields": [
               {
                   "title": "Bounce type",
@@ -241,7 +241,7 @@ app.post('/bounce/:uuid', function(req, res) {
               },
              {
                   "value": "<" + bounceDetailsURL + "|View Bounce details>",
-                  "short": true
+                  "short": false
               },        
           ],
             "actions": [{
@@ -276,7 +276,7 @@ app.post('/bounce/:uuid', function(req, res) {
 
 app.get('/command/postmark', function(req, res) {
   
-  res.sendStatus(200)
+  res.sendFile(path.join(__dirname + '/html/postmark-slack-app.html'));
   
 })
 
@@ -376,12 +376,12 @@ app.post('/command/postmark', function(req, res) {
                       },
                       {
                           "value": "<" + incidentURL + "|View incident details>",
-                          "short": true
+                          "short": false
                       },     
                   ],
       			      "actions": [
                 			{
-                			  //"type": "button",
+                			  //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
                 			  //"text": "View incident details",
                 			  //"url": incidentURL
                 			}
