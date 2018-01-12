@@ -20,8 +20,8 @@ var app = express();
 var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
-var envURL = 'http://localhost:5000' // local dev
-//var envURL = 'https://slack.postmarkapp.com' // production 
+//var envURL = 'http://localhost:5000' // local dev
+var envURL = 'https://slack.postmarkapp.com' // production 
 
 // Load JSON parser
 app.use(bodyParser.json());
