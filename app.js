@@ -37,12 +37,18 @@ var dbName = process.env.MONGODB_DBNAME;
 // This route handles the GET request to the /oauth endpoint.
 
 app.get('/oauth', function(req, res) {
-  if (!req.query.code) {
-    res.status(500);
-    res.send({ "Error": "Looks like we're not getting code." });
-    console.log("Looks like we're not getting code.");
-    return;
-  } 
+  
+  console.log(req.query.error);
+  
+  if (req.query.error === "access_denied") { 
+      res.status(500);
+      res.sendFile(path.join(__dirname + '/html/permission_denied.html'));
+      console.log("Permissions rejected.");
+  } else if (!req.query.code) {      
+      res.status(500);
+      res.sendFile(path.join(__dirname + '/html/oauth_nocode.html'));
+      console.log("Looks like we're not getting code.");
+  }  else {
 
     // If it looks good, call authRequest function
     
@@ -141,6 +147,7 @@ app.get('/oauth', function(req, res) {
         
       })
     }
+    } 
 });
 
 // *** WHEN A NEW BOUNCE IS POSTED, LOOK UP THE CORRECT USER IN THE DB AND POST TO THE APPROPRIATE SLACK HOOK
