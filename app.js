@@ -21,7 +21,8 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
 //var envURL = 'http://localhost:5000/'
-var envURL='https://pm-slack.herokuapp.com/'
+var envURL = 'https://slack.postmarkapp.com'
+//var envURL = 'https://pm-slack.herokuapp.com/'
 
 
 // Load JSON parser
