@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This Slack app works with an active [Postmark](https://postmarkapp.com/) account, and can currently do the following:
+[Postmark](https://postmarkapp.com/) makes it easy to send time-sensitive application email to your customers. This Slack app works with an active Postmark account, and can currently do the following:
 
 ### Bounce notifications
 
