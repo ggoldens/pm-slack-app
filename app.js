@@ -21,7 +21,6 @@ var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
 //var envURL = 'http://localhost:5000' // local dev
-//var envURL = 'https://pm-slack.herokuapp.com' // heroku
 var envURL = 'https://slack.postmarkapp.com' // production 
 
 // Load JSON parser
@@ -165,7 +164,7 @@ app.post('/bounce/:uuid', function(req, res) {
       if (req.body.CanActivate == true) {
         var emailCanActivate = "Email *CAN* be reactivated";
       } else {
-        var emailCanActivate = "Email can *NOT* be reactivated";
+        var emailCanActivate = "Email *CAN NOT* be reactivated";
       }
   } else {
     var emailActive = "*ACTIVE*";
@@ -246,9 +245,8 @@ app.post('/bounce/:uuid', function(req, res) {
           ],
             "actions": [{
               //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
-              //"text": "View bounce details",
-              //"text_url": bounceDetailsURL,
-              //"style": "primary"
+              //"text": "View Bounce details",
+              //"url": bounceDetailsURL,
             }],
             "color": "warning",
             "mrkdwn_in": ["fields"]            
@@ -375,14 +373,14 @@ app.post('/command/postmark', function(req, res) {
                           "short": false
                       },
                       {
-                          "value": "<" + incidentURL + "|View incident details>",
+                          "value": "<" + incidentURL + "|View incident timeline>",
                           "short": false
                       },     
                   ],
       			      "actions": [
                 			{
                 			  //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
-                			  //"text": "View incident details",
+                			  //"text": "View incident timeline",
                 			  //"url": incidentURL
                 			}
                       ],
