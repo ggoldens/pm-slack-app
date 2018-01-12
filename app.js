@@ -208,7 +208,7 @@ app.post('/bounce/:uuid', function(req, res) {
       console.log('Record found: ' + doc['slack_hook']);
 
       // URL to view Bounce details in Postmark activity
-      var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerId + '/messages/' + req.body.MessageID;
+      var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
 
       // POST to Slack hook
       request({
