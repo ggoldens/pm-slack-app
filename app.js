@@ -20,8 +20,8 @@ var app = express();
 var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
-//var envURL = 'http://localhost:5000' // local dev
-var envURL = 'https://slack.postmarkapp.com' // production 
+var envURL = 'http://localhost:5000' // local dev
+//var envURL = 'https://slack.postmarkapp.com' // production 
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -238,15 +238,17 @@ app.post('/bounce/:uuid', function(req, res) {
                   "value": emailCanActivate,
                   "short": true
               },
-             {
+             /*
+               {
                   "value": "<" + bounceDetailsURL + "|View Bounce details>",
                   "short": false
-              },        
+              },
+             */        
           ],
             "actions": [{
-              //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
-              //"text": "View Bounce details",
-              //"url": bounceDetailsURL,
+              "type": "button",
+              "text": "View Bounce details",
+              "url": bounceDetailsURL,
             }],
             "color": "warning",
             "mrkdwn_in": ["fields"]            
@@ -372,16 +374,18 @@ app.post('/command/postmark', function(req, res) {
                           "value": lastUpdate.body,
                           "short": false
                       },
+                      /*
                       {
                           "value": "<" + incidentURL + "|View incident timeline>",
                           "short": false
-                      },     
+                      },
+                      */     
                   ],
       			      "actions": [
                 			{
-                			  //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
-                			  //"text": "View incident timeline",
-                			  //"url": incidentURL
+                			  "type": "button",
+                			  "text": "View incident timeline",
+                			  "url": incidentURL
                 			}
                       ],
                   "color": statusColor  
