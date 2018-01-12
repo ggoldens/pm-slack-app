@@ -20,10 +20,9 @@ var app = express();
 var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
-//var envURL = 'http://localhost:5000/'
-var envURL = 'https://slack.postmarkapp.com/'
-//var envURL = 'https://pm-slack.herokuapp.com/'
-
+//var envURL = 'http://localhost:5000' // local dev
+//var envURL = 'https://pm-slack.herokuapp.com' // heroku
+var envURL = 'https://slack.postmarkapp.com' // production 
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -60,7 +59,7 @@ app.get('/oauth', function(req, res) {
           code: req.query.code,
           client_id: clientId,
           client_secret: clientSecret,
-          redirect_uri: envURL + 'oauth'
+          redirect_uri: envURL + '/oauth'
         }, 
         method: 'GET',                              //Specify the method
   
@@ -84,7 +83,7 @@ app.get('/oauth', function(req, res) {
   
           var newBounceUser = {
               uuid: uuid, 
-              pm_hook: envURL + 'bounce/' + uuid, // Generate unique inbound webhook
+              pm_hook: envURL + '/bounce/' + uuid, // Generate unique inbound webhook
               slack_hook: slackOAuthResponse.incoming_webhook.url, // Read Slack's inbound hook URL
               //slack_token: slackOAuthResponse.access_token, *** Not storing token for now - not needed for scopes requested, so it's safer to leave it out
               user_id: slackOAuthResponse.user_id,
@@ -162,15 +161,15 @@ app.post('/bounce/:uuid', function(req, res) {
   var uuid = req.params.uuid;
   
   if (req.body.Inactive == true) {
-    var emailActive = 'INACTIVE';
+    var emailActive = "*INACTIVE*";
       if (req.body.CanActivate == true) {
-        var activateMessage = "The receiving email address is marked as *INACTIVE*.\nThis email address *CAN* be reactivated.";
+        var emailCanActivate = "Email *CAN* be reactivated";
       } else {
-        var activateMessage = "The receiving email address is marked as *INACTIVE*.\nThis email address can *NOT* be reactivated.";
+        var emailCanActivate = "Email can *NOT* be reactivated";
       }
   } else {
-    var emailActive = 'ACTIVE';
-    var activateMessage = "The receiving email address is marked as *ACTIVE*. This email address does not need to be reactivated.";
+    var emailActive = "*ACTIVE*";
+    var emailCanActivate = "Email does not need to be reactivated.";
   }
 
   // Connect to DB
@@ -203,7 +202,7 @@ app.post('/bounce/:uuid', function(req, res) {
       console.log('Record found: ' + doc['slack_hook']);
 
       // URL to view Bounce details in Postmark activity
-      var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
+      var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerId + '/messages/' + req.body.MessageID;
 
       // POST to Slack hook
       request({
@@ -213,27 +212,46 @@ app.post('/bounce/:uuid', function(req, res) {
         body: {
           "attachments": [{
             "fallback": "View activity details at " + bounceDetailsURL,
+            "pretext": "New bounce received",
             "fields": [
               {
-                  "title": req.body.Name + ' received',
-                  "value": 'The email was sent to ' + req.body.Email + '.\nThe subject is *' + req.body.Subject + '*.',
+                  "title": "Bounce type",
+                  "value": req.body.Name,
                   "short": false
               },
               {
-                  "title": 'Deactivation details',
-                  "value": activateMessage,
-                  "short": false
-              },               
+                  "title": "Email address",
+                  "value": req.body.Email,
+                  "short": true
+              },
+              {
+                  "title": "Subject",
+                  "value": req.body.Subject,
+                  "short": true
+              },
+              {
+                  "title": "Email status",
+                  "value": "The email address is " + emailActive,
+                  "short": true
+              },
+              {
+                  "title": "Reactivation status",
+                  "value": emailCanActivate,
+                  "short": true
+              },
+             {
+                  "value": "<" + bounceDetailsURL + "|View Bounce details>",
+                  "short": true
+              },        
           ],
             "actions": [{
-              "type": "button",
-              "name": "bounce_details",
-              "text": "View details",
-              "url": bounceDetailsURL,
-              "style": "primary"
+              //"type": "button", //Scrapping buttons for the moment, since they don't work in the iOS app for some reason ¯\_(ツ)_/¯
+              //"text": "View bounce details",
+              //"text_url": bounceDetailsURL,
+              //"style": "primary"
             }],
             "color": "warning",
-            "mrkdwn_in": ["fields"]
+            "mrkdwn_in": ["fields"]            
           }]
         },
       }, function(error, response, body) {});
@@ -355,13 +373,17 @@ app.post('/command/postmark', function(req, res) {
                           "title": "Last incident details",
                           "value": lastUpdate.body,
                           "short": false
-                      }
+                      },
+                      {
+                          "value": "<" + incidentURL + "|View incident details>",
+                          "short": true
+                      },     
                   ],
       			      "actions": [
                 			{
-                			  "type": "button",
-                			  "text": "View incident details",
-                			  "url": incidentURL
+                			  //"type": "button",
+                			  //"text": "View incident details",
+                			  //"url": incidentURL
                 			}
                       ],
                   "color": statusColor  
