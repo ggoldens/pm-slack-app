@@ -20,8 +20,9 @@ var app = express();
 var PORT = process.env.PORT || 4390;
 
 // Environment: Local vs. Production
-//var envURL = 'http://localhost:5000' // local dev
-var envURL = 'https://slack.postmarkapp.com' // production 
+var envURL = process.env.ENV_URL;
+
+console.log(envURL);
 
 // Load JSON parser
 app.use(bodyParser.json());
@@ -112,7 +113,7 @@ app.get('/oauth', function(req, res) {
             }
   
             var db = client.db(dbName);
-            var bounce_users = db.collection('bounce_users');
+            var bounce_users = db.collection(process.env.MONGODB_COLLECTION);
   
             // Insert new user record
   
@@ -189,7 +190,7 @@ app.post('/bounce/:uuid', function(req, res) {
       }
 
     var db = client.db(dbName);
-    var bounce_users = db.collection('bounce_users');
+    var bounce_users = db.collection(process.env.MONGODB_COLLECTION);
 
 
     // Find the right user
