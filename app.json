@@ -18,6 +18,12 @@
     "SLASH_TOKEN": {
       "required": true
     }
+    "ENV_URL": {
+      "required": true
+    }
+    "MONGODB_COLLECTION": {
+      "required": true
+    }
   },
   "formation": {
     "web": {
@@ -33,3 +39,4 @@
     }
   ]
 }
+
