@@ -190,7 +190,7 @@ app.post('/bounce/:uuid', function(req, res) {
       }
 
     var db = client.db(dbName);
-    var bounce_users = db.collection('bounce_users');
+    var bounce_users = db.collection(process.env.MONGODB_COLLECTION);
 
 
     // Find the right user
