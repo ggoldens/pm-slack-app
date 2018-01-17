@@ -219,6 +219,7 @@ app.post('/bounce/:uuid', function(req, res) {
         body: {
           "attachments": [{
             "fallback": "View Bounce details at " + bounceDetailsURL,
+            "callback_id": "bounce_received",
             "pretext": "New Bounce received",
             "fields": [
               {
@@ -253,11 +254,20 @@ app.post('/bounce/:uuid', function(req, res) {
               },
              */        
           ],
-            "actions": [{
+            "actions": [
+            {
               "type": "button",
               "text": "View Bounce details",
               "url": bounceDetailsURL,
-            }],
+            },
+            {
+              "name": "doReactivate",
+              "type": "button",
+              "text": "Reactivate email",
+              "style": "danger",
+              "value": "reactivate",
+            }
+            ],
             "color": "warning",
             "mrkdwn_in": ["fields"]            
           }]
@@ -280,7 +290,25 @@ app.post('/bounce/:uuid', function(req, res) {
 });
 
 
-// Add the /postmark slash command
+// *** INTERACTIVE MESSAGE BUTTONS
+
+app.post('/action-endpoint', function(req, res, body) {
+  
+  res.status(200).end(); //Send empty 200 response immediately
+  
+  var slackInteractiveResponse = JSON.parse(req.body.payload); // Slack's response goes here
+  var responseValue = slackInteractiveResponse.actions[0];
+  
+  console.log(slackInteractiveResponse);
+  console.log(responseValue.value);
+  
+}
+
+
+)
+
+
+// *** /postmark SLASH COMMAND
 
 app.get('/command/postmark', function(req, res) {
   
@@ -290,7 +318,7 @@ app.get('/command/postmark', function(req, res) {
 
 app.post('/command/postmark', function(req, res) {
   
-  res.status(200).send(''); //Send empty 200 response immediately
+  res.status(200).end(); //Send empty 200 response immediately
   
   var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
   var slashToken = req.body.token; // Store token to validate the request is legit
