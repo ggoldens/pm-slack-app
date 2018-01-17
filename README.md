@@ -8,7 +8,7 @@
 
 Send Bounce notification messages from Postmark to a Slack channel of your choice. The notification also provides a direct link to the Message Details page so that you can investigate further. Like so:
 
-<p><img style="display: block; margin-left: auto; margin-right: auto" title="" src="/img/bounce_example3.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto" title="" src="/img/bounce_example4.jpg" border="0" alt="" /></p>
 
 ### `/postmark` command
 
@@ -19,7 +19,7 @@ We'll continue to add more functionality to the `/postmark` slash command, but f
 
 Here's an example of what a status message looks like:
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/status_example.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/status_example2.jpg" border="0" alt="" /></p>
 
 ## Installation
 
