@@ -4,6 +4,7 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
+var crypto = require('crypto');
 var moment = require('moment'); // Time parser
 var UIDGenerator = require('uid-generator');
 var uidgen = new UIDGenerator();
@@ -290,29 +291,24 @@ app.get('/command/postmark', function(req, res) {
 
 app.post('/command/postmark', function(req, res) {
   
-  res.status(200).send(''); //Send empty 200 response immediately
-  
   var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
   var slashToken = req.body.token; // Store token to validate the request is legit
   var slashText = req.body.text; // Store the text used with the /postmark command 
   
   // Validate the request is legit
+  var tokenLength = Buffer.byteLength(process.env.SLASH_TOKEN);
+  var a = Buffer.alloc(tokenLength, slashToken);
+  var b = Buffer.alloc(tokenLength, process.env.SLASH_TOKEN);
   
-  if (slashToken !== process.env.SLASH_TOKEN) {
+  if (!(crypto.timingSafeEqual(a, b))) {
     console.log("Tokens don't match");
-    request({
-      url: slashResponseURL,
-      method: 'POST',
-      json: true,
-      body: {
-        "response_type": "ephemeral",
-        "text": 'Sorry, it looks like this request didn\'t originate from Slack.',
-        },
-      }, function(error, response, body) {});
+    res.status(403).end();
     return;
   }
   
   // Provide help
+  
+  res.status(200).send(''); //Send empty 200 response immediately
   
   if (slashText === "" || slashText === "help") {  
     request({
