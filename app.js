@@ -291,16 +291,14 @@ app.get('/command/postmark', function(req, res) {
 
 app.post('/command/postmark', function(req, res) {
   
-  res.status(200).send(''); //Send empty 200 response immediately
-  
   var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
   var slashToken = req.body.token; // Store token to validate the request is legit
   var slashText = req.body.text; // Store the text used with the /postmark command 
   
   // Validate the request is legit
-  
-  var a = Buffer.alloc(24, slashToken);
-  var b = Buffer.alloc(24, process.env.SLASH_TOKEN);
+  var tokenLength = Buffer.byteLength(process.env.SLASH_TOKEN);
+  var a = Buffer.alloc(tokenLength, slashToken);
+  var b = Buffer.alloc(tokenLength, process.env.SLASH_TOKEN);
   
   if (!(crypto.timingSafeEqual(a, b))) {
     console.log("Tokens don't match");
@@ -309,6 +307,8 @@ app.post('/command/postmark', function(req, res) {
   }
   
   // Provide help
+  
+  res.status(200).send(''); //Send empty 200 response immediately
   
   if (slashText === "" || slashText === "help") {  
     request({
