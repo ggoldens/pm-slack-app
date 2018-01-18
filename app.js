@@ -4,6 +4,7 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
+var crypto = require('crypto');
 var moment = require('moment'); // Time parser
 var UIDGenerator = require('uid-generator');
 var uidgen = new UIDGenerator();
@@ -298,17 +299,12 @@ app.post('/command/postmark', function(req, res) {
   
   // Validate the request is legit
   
-  if (slashToken !== process.env.SLASH_TOKEN) {
+  var a = Buffer.alloc(24, slashToken);
+  var b = Buffer.alloc(24, process.env.SLASH_TOKEN);
+  
+  if (!(crypto.timingSafeEqual(a, b))) {
     console.log("Tokens don't match");
-    request({
-      url: slashResponseURL,
-      method: 'POST',
-      json: true,
-      body: {
-        "response_type": "ephemeral",
-        "text": 'Sorry, it looks like this request didn\'t originate from Slack.',
-        },
-      }, function(error, response, body) {});
+    res.status(403).end();
     return;
   }
   
