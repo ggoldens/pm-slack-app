@@ -398,7 +398,43 @@ app.post('/command/postmark', function(req, res) {
           }, function(error, response, body) {});
         });
       });     
-        
+    
+  // Emails sent the past 30 days
+  
+  } else if (slashText === "sent") {
+    
+    var serverAPIToken = process.env.PM_SERVER_API_TOKEN;
+    var now = moment();                                   //Calculate last 30 days
+    var dateToday = moment(now).format("YYYY-MM-DD");
+    var date30DaysAgo = moment(dateToday).subtract(30, 'days').format("YYYY-MM-DD");
+    
+    request({
+      url: 'https://api.postmarkapp.com/stats/outbound/sends',
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Postmark-Server-Token': serverAPIToken,
+        },
+      qs: {
+        'fromdate': date30DaysAgo,
+        'todate': dateToday,
+      },
+      }, function(error, response, body) {
+            var StatsSentResponse = JSON.parse(body);  // Store API response
+            
+              request({
+                url: slashResponseURL,
+                method: 'POST',
+                json: true,
+                body: {
+                  "response_type": "in_channel",
+                  "text": 'In the past 30 days you sent *' + StatsSentResponse.Sent + '* emails.',
+                  },
+                }, function(error, response, body) {});
+            
+            });
+  
+     
         
   // Post the docs URL
   } else if (slashText === "docs") {  
