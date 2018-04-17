@@ -38,7 +38,7 @@ Once you authenticate successfully, you will receive a message in Slack with you
 
 If you'd like to see Bounce and or Spam Complaint notifications in your chosen channel you need to add that URL to the **Webhook URL** field in your Postmark account (Select Server / Settings / Webhooks):
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/setURL.png" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/setURL.jpg" border="0" alt="" /></p>
 
 *Please note that at this time the Slack App only supports Bounce and Spam Complaint events.*
 
