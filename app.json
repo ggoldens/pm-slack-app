@@ -23,6 +23,9 @@
     },
     "SLASH_TOKEN": {
       "required": true
+    },
+    "STATUS_TOKEN": {
+      "required": true
     }
   },
   "formation": {
