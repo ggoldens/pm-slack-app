@@ -1,9 +1,11 @@
+const moment = require('moment');
+
 /**
  * Constructs a Slack attachment containing the latest status
  * @param  {Object} config Config returned from the status service
  * @return {Object}
  */
-exports.createAttachment = (config) => (
+exports.createAttachment = (config, showTime) => (
   {
     "attachments": [{
       "fallback": "",
@@ -12,17 +14,19 @@ exports.createAttachment = (config) => (
       "color": this.statusInfo[config.status].color,
       "fields": [
         ...config.status === 'UP' ? [{
-            "title": "",
-            "value": "Details about the last incident:",
+            "value": "_Details about the last incident:_",
             "short": false
         }] : [],
         {
-          "title": config.lastIncident.title,
+          "value": `*<${this.incidentURL(config.lastIncident.id)}|${config.lastIncident.title}>*`,
+          "short": false
+        },
+        {
           "value": config.lastIncident.body,
           "short": false
         },
         {
-          "title": "Last update",
+          "title": `Last update ${showTime ? moment(config.lastIncident.updated_at).fromNow() : ''}`,
           "value": this.lastUpdate(config.lastIncident.updates),
           "short": false
         }
@@ -30,10 +34,20 @@ exports.createAttachment = (config) => (
       "actions": [{
         "type": "button",
         "text": "View incident timeline",
-        "url": `https://status.postmarkapp.com/incidents/${config.lastIncident.id}`
+        "url": this.incidentURL(config.lastIncident.id)
       }]
     }]
   }
+)
+
+
+/**
+ * Generates incident URL
+ * @param  {Integer} id Incident ID
+ * @return {String}
+ */
+exports.incidentURL= (id) => (
+  `https://status.postmarkapp.com/incidents/${id}`
 )
 
 

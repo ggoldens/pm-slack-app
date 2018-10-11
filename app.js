@@ -5,10 +5,12 @@ var request = require('request');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
 var crypto = require('crypto');
-var moment = require('moment'); // Time parser
+var moment = require('moment');
 var UIDGenerator = require('uid-generator');
 var uidgen = new UIDGenerator();
 var path = require('path');
+var statusHelpers = require('./src/statusHelpers');
+var slashCommand = require('./src/slashCommand');
 
 // Store app's ID and Secret
 var clientId = process.env.CLIENT_ID;
@@ -23,8 +25,6 @@ var PORT = process.env.PORT || 4390;
 // Environment: Local vs. Production
 var envURL = process.env.ENV_URL;
 
-console.log(envURL);
-
 // Load JSON parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,11 +34,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var dbURI = process.env.MONGODB_URI;
 var dbName = process.env.MONGODB_DBNAME;
 
-// *** OAUTH ***
 
-// This route handles the GET request to the /oauth endpoint.
-
-app.get('/oauth', function(req, res) {
+app.get('/oauth', (req, res) => {
 
   console.log(req.query.error);
 
@@ -100,7 +97,8 @@ app.get('/oauth', function(req, res) {
               channel_id: slackOAuthResponse.incoming_webhook.channel_id,
               config_url: slackOAuthResponse.incoming_webhook.configuration_url,
               auth_time_unix: moment(now).format("X"), //Store when application was authenticated
-              auth_time_utc: moment(now).format("YYYY-MM-DD HH:mm:ss") //Store a formatted, UTC timestamp as well
+              auth_time_utc: moment(now).format("YYYY-MM-DD HH:mm:ss"), //Store a formatted, UTC timestamp as well
+              status_opt_in: true
             }
 
           // Connect to DB
@@ -132,7 +130,7 @@ app.get('/oauth', function(req, res) {
                 method: 'POST',
                 json: true,
                 body: {
-                  "text": "Hello! You've successfully installed the Postmark Bot. Type `/postmark help` for the commands you can use.\nIf you'd like to get Bounce and/or Spam Complaint notifications, Click on *Add Webhook* in your *Postmark Server Settings*, select the *Bounce* and/or *Spam Complaint* events, and add this as the *Webhook URL*:\n`" + newBounceUser.pm_hook + "`"
+                  "text": "👋 Hello! You’ve successfully installed the Postmark Bot. I’ll let you know whenever we add or update an incident on our status page.\n\nIf you'd like to get Bounce and/or Spam Complaint notifications, Click on *Add Webhook* in your *Postmark Server Settings*, select the *Bounce* and/or *Spam Complaint* events, and add this as the *Webhook URL*:\n`" + newBounceUser.pm_hook + "`\n\nType `/postmark help` for the commands you can use."
                 },
               })
 
@@ -152,16 +150,11 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// *** WHEN A NEW BOUNCE IS POSTED, LOOK UP THE CORRECT USER IN THE DB AND POST TO THE APPROPRIATE SLACK HOOK
-
-// Set up unique routes
-
 app.get('/bounce/:uuid', (req, res) => {
   res.sendFile(path.join(__dirname + '/html/postmark-slack-app.html'));
 })
 
-
-app.post('/bounce/:uuid', function(req, res) {
+app.post('/bounce/:uuid', (req, res) => {
   res.send('200 Everything is ok');
 
   // Define variables we're going to need
@@ -207,7 +200,6 @@ app.post('/bounce/:uuid', function(req, res) {
       }
 
       var slackInboundURL = doc['slack_hook'];
-      console.log('Record found: ' + doc['slack_hook']);
 
       // URL to view Bounce details in Postmark activity
       var bounceDetailsURL = 'https://account.postmarkapp.com/servers/' + req.body.ServerID + '/messages/' + req.body.MessageID;
@@ -280,151 +272,70 @@ app.post('/bounce/:uuid', function(req, res) {
   });
 });
 
+app.post('/status', (req, res) => {
+  if (req.body.slackAppToken !== process.env.STATUS_TOKEN) {
+    return res.status(403).end();
+  }
 
-// Add the /postmark slash command
+  const message = statusHelpers.createAttachment(req.body);
 
-app.get('/command/postmark', function(req, res) {
+  mongodb.MongoClient.connect(dbURI, (err, client) => {
+    if (err) return res.send({ "Error": "Looks like we can't connect to the database." });
+
+    const db = client.db(dbName);
+    const collection = db.collection(process.env.MONGODB_COLLECTION);
+
+    collection.find({ 'status_opt_in': true }).toArray((err, docs) => {
+      if (err) return res.send({ "Error": "Looks like we can't find the database record." });
+
+      res.send('OK');
+
+      docs.forEach((item) => {
+        // POST to Slack hook
+        request({
+          url: item.slack_hook,
+          method: 'POST',
+          json: true,
+          body: message,
+        });
+      });
+
+      // Close the DB connection
+      client.close((err) => {
+        if (err) return res.send({ "Error": "Looks like we can't close the database connection." });
+      });
+    });
+  });
+})
+
+
+/**
+ * Postmark slash command
+ */
+
+app.get('/command/postmark', (req, res) => {
 
   res.sendFile(path.join(__dirname + '/html/postmark-slack-app.html'));
 
 })
 
-app.post('/command/postmark', function(req, res) {
-
-  var slashResponseURL = req.body.response_url; //Store the Slack inbound hook needed for responses
-  var slashToken = req.body.token; // Store token to validate the request is legit
-  var slashText = req.body.text; // Store the text used with the /postmark command
-
+app.post('/command/postmark', (req, res) => {
   // Validate the request is legit
   var tokenLength = Buffer.byteLength(process.env.SLASH_TOKEN);
-  var a = Buffer.alloc(tokenLength, slashToken);
+  var a = Buffer.alloc(tokenLength, req.body.token);
   var b = Buffer.alloc(tokenLength, process.env.SLASH_TOKEN);
 
   if (!(crypto.timingSafeEqual(a, b))) {
     console.log("Tokens don't match");
-    res.status(403).end();
-    return;
+    return res.status(403).end();
   }
 
+  // Send empty 200 immediately
+  res.send('');
+
   // Provide help
-
-  res.status(200).send(''); //Send empty 200 response immediately
-
-  if (slashText === "" || slashText === "help") {
-    request({
-    url: slashResponseURL,
-    method: 'POST',
-    json: true,
-    body: {
-      "response_type": "ephemeral",
-      "text": "`/postmark status` --> Get the current Postmark app status.\n`/postmark docs` --> Posts the developer docs URL for easy access."
-      },
-    }, function(error, response, body) {});
-
-  // Post current status
-
-  } else if (slashText === "status") {
-
-    request.get('https://status.postmarkapp.com/api/1.0/status', function (err, res, body) {
-
-      var pmStatusResponse = JSON.parse(body); // Store the "status" API response
-
-      request.get('https://status.postmarkapp.com/api/1.0/last_incident', function (err, res, body) {
-
-        var pmLastIncident = JSON.parse(body); // Grab the last incident and store the response
-
-        // Define variables needed for update
-        var lastUpdate = pmLastIncident.updates[pmLastIncident.updates.length - 1];
-        var incidentURL = 'https://status.postmarkapp.com/incidents/' + pmLastIncident.id;
-        var lastUpdateWhen = moment(pmLastIncident.updated_at).fromNow();
-
-        // Set correct color for slack update
-        if (pmStatusResponse.status === "UP") {
-              var statusColor = "good"
-              } else {
-                var statusColor = "danger"
-              };
-
-        // Post message to Slack
-
-        request({
-          url: slashResponseURL,
-          method: 'POST',
-          json: true,
-          body: {
-            "response_type": "in_channel",
-            "attachments": [
-              {
-                  "fallback": "You can view the current Postmark status here: https://status.postmarkapp.com/",
-                  "fields": [
-                      {
-                          "title": "Current Postmark status",
-                          "value": pmStatusResponse.status,
-                          "short": true
-                      },
-      				{
-                          "title": "Last incident update",
-                          "value": lastUpdateWhen,
-                          "short": true
-                      },
-      				{
-                          "title": "Last incident title",
-                          "value": incidentTitle = pmLastIncident.title,
-                          "short": false
-                      },
-                      {
-                          "title": "Last incident details",
-                          "value": lastUpdate.body,
-                          "short": false
-                      },
-                      /*
-                      {
-                          "value": "<" + incidentURL + "|View incident timeline>",
-                          "short": false
-                      },
-                      */
-                  ],
-      			      "actions": [
-                			{
-                			  "type": "button",
-                			  "text": "View incident timeline",
-                			  "url": incidentURL
-                			}
-                      ],
-                  "color": statusColor
-              }]
-            },
-          }, function(error, response, body) {});
-        });
-      });
-
-
-  // Post the docs URL
-  } else if (slashText === "docs") {
-
-      request({
-        url: slashResponseURL,
-        method: 'POST',
-        json: true,
-        body: {
-          "response_type": "ephemeral",
-          "text": 'API documentation is at https://postmarkapp.com/developer',
-          },
-        }, function(error, response, body) {});
-
-  } else {  // If there isn't a match to anything
-      request({
-      url: slashResponseURL,
-      method: 'POST',
-      json: true,
-      body: {
-        "response_type": "ephemeral",
-        "text": "Sorry, that command doesn't work. Use `/postmark help` for a list of commands.",
-        },
-      }, function(error, response, body) {});
-    };
-
-  })
+  slashCommand.parse(req.body);
+})
 
 
 // Basic routes
