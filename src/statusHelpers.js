@@ -41,26 +41,26 @@ exports.createAttachment = (config) => (
  * Options for presenting each status title and color
  */
 exports.statusInfo = Object.freeze({
-    UP: {
-        color: '#4dc47e',
-        title: 'All systems operational'
-    },
-    MAINTENANCE: {
-        color: '#a5adb4',
-        title: 'Scheduled Maintenance'
-    },
-    DELAY: {
-        color: '#f6a823',
-        title: 'External Delays',
-    },
-    DEGRADED: {
-        color: '#f6a823',
-        title: 'Degraded Performance',
-    },
-    DOWN: {
-        color: '#c72d3f',
-        title: 'Service Offline',
-    }
+  UP: {
+    color: '#4dc47e',
+    title: 'All systems operational'
+  },
+  MAINTENANCE: {
+    color: '#a5adb4',
+    title: 'Scheduled Maintenance'
+  },
+  DELAY: {
+    color: '#f6a823',
+    title: 'External Delays',
+  },
+  DEGRADED: {
+    color: '#f6a823',
+    title: 'Degraded Performance',
+  },
+  DOWN: {
+    color: '#c72d3f',
+    title: 'Service Offline',
+  }
 })
 
 
