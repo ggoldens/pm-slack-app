@@ -42,7 +42,7 @@ exports.help = (responseURL) => {
   json: true,
   body: {
     "response_type": "ephemeral",
-    "text": "`/postmark status` --> Get the current Postmark app status.\n`/postmark docs` --> Posts the developer docs URL for easy access."
+    "text": "👋 Hello! Here are a list of available commands:\n\n`/postmark status` --> Get the current app status.\n`/postmark status on` --> Receive Postmark status notifications in this channel.\n`/postmark status off` --> Turn off status notifications in this channel.\n`/postmark docs` --> Get a link developer docs URL for easy access.\n\n_Questions? Feel free to reach out to <mailto:support@postmarkapp.com|support@postmarkapp.com>._"
     },
   }, function(error, response, body) {});
 }
