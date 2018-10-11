@@ -4,22 +4,27 @@
 
 [Postmark](https://postmarkapp.com/) makes it easy to send time-sensitive application email to your customers. This Slack app works with an active Postmark account, and can currently do the following:
 
+### Status notifications
+We will send notifications to your Slack channel whenever we add or update an incident on our [status page](https://status.postmarkapp.com). Status notifications are turned on by default. To turn them off, type `/postmark status off`. Alternatively, you can type `/postmark status on` to turn them back on again.
+
+Here’s how a status notification looks:
+
+<p><img style="display: block; margin-left: auto; margin-right: auto" src="/img/status_example.png" border="0" alt="Postmark Slack Status Example" /></p>
+
 ### Bounce notifications
 
 Send Bounce notification messages from Postmark to a Slack channel of your choice. The notification also provides a direct link to the Message Details page so that you can investigate further. Like so:
 
-<p><img style="display: block; margin-left: auto; margin-right: auto" title="" src="/img/bounce_example4.jpg" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto" src="/img/bounce_example4.jpg" border="0" alt="Postmark Slack Bounce Example" /></p>
 
 ### `/postmark` command
 
 We'll continue to add more functionality to the `/postmark` slash command, but for now here's what you can do:
 
-* `/postmark status` --> Provides the current status of Postmark's services, with basic incident details and a link to view the full incident page
-* `/postmark docs` --> Post a URL to the API documentation for easy access
-
-Here's an example of what a status message looks like:
-
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/status_example2.jpg" border="0" alt="" /></p>
+* `/postmark status` --> Get the current app status.
+* `/postmark status on` --> Receive Postmark status notifications in the current channel.
+* `/postmark status off` --> Turn off status notifications in the current channel.
+* `/postmark docs` --> Get a link developer docs URL for easy access.
 
 ## Installation
 
@@ -38,7 +43,7 @@ Once you authenticate successfully, you will receive a message in Slack with you
 
 If you'd like to see bounce notifications in your chosen channel you need to add that URL to the **Bounce Webhook** field in your Postmark account (Settings / Outbound):
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p> 
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p>
 
 ### Step 3
 
