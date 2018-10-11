@@ -15,15 +15,15 @@ exports.parse = (requestBody) => {
   const responseURL = requestBody.response_url;
   const text = requestBody.text;
 
-  if (text === "" || text === "help") {
+  if (text === '' || text === 'help') {
     this.help(responseURL);
-  } else if (text === "status") {
+  } else if (text === 'status') {
     this.status(responseURL);
-  } else if (text === "docs") {
+  } else if (text === 'docs') {
     this.docs(responseURL);
-  } else if (text === "status on") {
+  } else if (text === 'status on') {
     this.statusOn(requestBody);
-  } else if (text === "status off") {
+  } else if (text === 'status off') {
     this.statusOff(requestBody);
   } else {
     this.unknown(responseURL);
