@@ -273,7 +273,13 @@ app.post('/bounce/:uuid', (req, res) => {
 });
 
 app.post('/status', (req, res) => {
-  if (req.body.slackAppToken !== process.env.STATUS_TOKEN) {
+  // Validate the request is legit
+  var tokenLength = Buffer.byteLength(process.env.STATUS_TOKEN);
+  var a = Buffer.alloc(tokenLength, req.body.slackAppToken);
+  var b = Buffer.alloc(tokenLength, process.env.STATUS_TOKEN);
+
+  if (!(crypto.timingSafeEqual(a, b))) {
+    console.log("Status tokens don't match");
     return res.status(403).end();
   }
 
