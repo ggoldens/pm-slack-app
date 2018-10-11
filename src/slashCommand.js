@@ -147,7 +147,7 @@ exports.updateStatus = (teamId, channelId, statusNotifications, callback) => {
     const db = client.db(dbName);
     const collection = db.collection(process.env.MONGODB_COLLECTION);
 
-    collection.updateOne({
+    collection.updateMany({
       'team_id': teamId,
       'channel_id': channelId
     } , { $set: { 'status_opt_in' : statusNotifications } }, (err, result) => {
