@@ -86,8 +86,6 @@ exports.status = (responseURL) => {
  * @param  {String} responseURL
  */
 exports.statusOn = (requestBody) => {
-  // TODO: verify that the app is installed in the channel receiving the command
-
   this.updateStatus(requestBody.team_id, requestBody.channel_id, true, (err, result) => {
       let responseText = '✅ Postmark status notifications have been turned on. We’ll give you a heads if we add or update an incident on our status page.'
 
