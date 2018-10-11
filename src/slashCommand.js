@@ -89,10 +89,12 @@ exports.statusOn = (requestBody) => {
   // TODO: verify that the app is installed in the channel receiving the command
 
   this.updateStatus(requestBody.team_id, requestBody.channel_id, true, (err, result) => {
-      const responseText = 'Status notifications are on!'
+      let responseText = '✅ Postmark status notifications have been turned on. We’ll give you a heads if we add or update an incident on our status page.'
 
       if (err) {
-        responseText = 'There was an issue turning on your status notifications. Try `/postmark status on` again. If you keep experiencing issues feel free to reach out to support@postmarkapp.com.'
+        responseText = 'There was an issue turning on your status notifications. Try `/postmark status on` again. If you keep running into issues feel free to reach out to support@postmarkapp.com.'
+      } else if (result.result.n === 0) {
+        responseText = 'Looks like we don’t have access to this channel. You’ll need to install the <http://slack.postmarkapp.com|Postmark Bot> in this channel to receive status notifications.'
       }
 
       request({
@@ -114,10 +116,12 @@ exports.statusOn = (requestBody) => {
  */
 exports.statusOff = (requestBody) => {
   this.updateStatus(requestBody.team_id, requestBody.channel_id, false, (err, result) => {
-      const responseText = 'Status notifications are off.'
+      let responseText = 'Postmark status notifications have been turned off. Type `/postmark status on` if you change your mind.'
 
       if (err) {
         responseText = 'There was an issue turning off status notifications. Try `/postmark status on` again. If you keep experiencing issues feel free to reach out to support@postmarkapp.com.'
+      } else if (result.result.n === 0) {
+        responseText = 'Looks like the Postmark Bot is not enabled in this channel. Head over to <http://slack.postmarkapp.com|slack.postmarkapp.com> and grant access to this channel.'
       }
 
       request({
