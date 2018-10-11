@@ -130,7 +130,7 @@ app.get('/oauth', (req, res) => {
                 method: 'POST',
                 json: true,
                 body: {
-                  "text": "👋 Hello! You’ve successfully installed the Postmark Bot. I’ll let you know whenever we add or update an incident on our status page.\n\nIf you'd like to get Bounce and/or Spam Complaint notifications, Click on *Add Webhook* in your *Postmark Server Settings*, select the *Bounce* and/or *Spam Complaint* events, and add this as the *Webhook URL*:\n`" + newBounceUser.pm_hook + "`\n\nType `/postmark help` for the commands you can use."
+                  "text": "👋 Hello! You’ve successfully installed the Postmark Bot. We’ll let you know whenever we add or update an incident on our status page.\n\nIf you'd like to get Bounce and/or Spam Complaint notifications, Click on *Add Webhook* in your *Postmark Server Settings*, select the *Bounce* and/or *Spam Complaint* events, and add this as the *Webhook URL*:\n`" + newBounceUser.pm_hook + "`\n\nType `/postmark help` for the commands you can use."
                 },
               })
 
