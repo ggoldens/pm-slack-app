@@ -39,14 +39,14 @@ app.get('/oauth', (req, res) => {
 
   console.log(req.query.error);
 
-  if (req.query.error === "access_denied") {
+  if (req.query.error === 'access_denied') {
       res.status(500);
       res.sendFile(path.join(__dirname + '/html/permission_denied.html'));
-      console.log("Permissions rejected.");
+      console.log('Permissions rejected.');
   } else if (!req.query.code) {
       res.status(500);
       res.sendFile(path.join(__dirname + '/html/oauth_nocode.html'));
-      console.log("Looks like we're not getting code.");
+      console.log('Looks like we’re not getting code.');
   }  else {
 
     // If it looks good, call authRequest function
@@ -71,8 +71,8 @@ app.get('/oauth', (req, res) => {
 
       }, function(error, response, body) {
         if (error) {
-          console.log("Looks like there's something wrong with Slack's response.");
-          res.send({ "Error": "Looks like there's something wrong with Slack's response." });
+          console.log('Looks like there’s something wrong with Slack’s response.');
+          res.send({ 'Error': 'Looks like there’s something wrong with Slack’s response.' });
           return;
         }
           var slackOAuthResponse = JSON.parse(body); // Slack's OAuth response goes here
@@ -107,7 +107,7 @@ app.get('/oauth', (req, res) => {
 
             if (err) {
               console.log('Can\'t connect to the database');
-              res.send({ "Error": "Looks like we can't connect to the database." });
+              res.send({ 'Error': 'Looks like we can’t connect to the database.' });
               return;
             }
 
