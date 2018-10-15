@@ -4,10 +4,10 @@
 
 [Postmark](https://postmarkapp.com/) makes it easy to send time-sensitive application email to your customers. This Slack app works with an active Postmark account, and can currently do the following:
 
-### Status notifications
+### Service status notifications
 We will send notifications to your Slack channel whenever we add or update an incident on our [status page](https://status.postmarkapp.com). Status notifications are turned on by default. To turn them off, type `/postmark status off`. Alternatively, you can type `/postmark status on` to turn them back on again.
 
-Here’s how a status notification looks:
+Here’s what a status notification looks like:
 
 <p><img style="display: block; margin-left: auto; margin-right: auto" src="/img/status_example.png" border="0" alt="Postmark Slack Status Example" /></p>
 

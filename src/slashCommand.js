@@ -42,7 +42,7 @@ exports.help = (responseURL) => {
   json: true,
   body: {
     "response_type": "ephemeral",
-    "text": "👋 Hello! Here are a list of available commands:\n\n`/postmark status` --> Get the current app status.\n`/postmark status on` --> Receive Postmark status notifications in this channel.\n`/postmark status off` --> Turn off status notifications in this channel.\n`/postmark docs` --> Get a link developer docs URL for easy access.\n\n_Questions? Feel free to reach out to <mailto:support@postmarkapp.com|support@postmarkapp.com>._"
+    "text": "👋 Hello! Here are a list of available commands:\n\n`/postmark status` --> Get the current app status.\n`/postmark status on` --> Receive Postmark service status notifications in this channel.\n`/postmark status off` --> Turn off service status notifications in this channel.\n`/postmark docs` --> Get a link developer docs URL for easy access.\n\n_Questions? Feel free to reach out to <mailto:support@postmarkapp.com|support@postmarkapp.com>._"
     },
   }, function(error, response, body) {});
 }
@@ -87,7 +87,7 @@ exports.status = (responseURL) => {
  */
 exports.statusOn = (requestBody) => {
   this.updateStatus(requestBody.team_id, requestBody.channel_id, true, (err, result) => {
-      let responseText = '✅ Postmark status notifications have been turned on. We’ll give you a heads up if we add or update an incident on our status page.'
+      let responseText = '✅ Postmark service status notifications have been turned on. We’ll post a notification in this channel if we add or update an incident on our status page.'
 
       if (err) {
         responseText = 'There was an issue turning on your status notifications. Try `/postmark status on` again. If you keep running into issues feel free to reach out to support@postmarkapp.com.'
