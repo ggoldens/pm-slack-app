@@ -41,9 +41,11 @@ Click the "Add to Slack" button below, and select a channel you would like to po
 
 Once you authenticate successfully, you will receive a message in Slack with your unique bounce webhook URL. **You'll only get this message once, so please save the URL immediately.**
 
-If you'd like to see bounce notifications in your chosen channel you need to add that URL to the **Bounce Webhook** field in your Postmark account (Settings / Outbound):
+If you'd like to see Bounce and or Spam Complaint notifications in your chosen channel you need to add that URL to the **Webhook URL** field in your Postmark account (Select Server / Settings / Webhooks):
 
-<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/account_bounce_settings.png" border="0" alt="" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="" src="/img/setURL.jpg" border="0" alt="" /></p>
+
+*Please note that at this time the Slack App only supports Bounce and Spam Complaint events.*
 
 ### Step 3
 
