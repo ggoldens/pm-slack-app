@@ -114,7 +114,7 @@ exports.statusOn = (requestBody) => {
  */
 exports.statusOff = (requestBody) => {
   this.updateStatus(requestBody.team_id, requestBody.channel_id, false, (err, result) => {
-      let responseText = 'Postmark status notifications have been turned off. Type `/postmark status on` if you change your mind.'
+      let responseText = 'Postmark service status notifications have been turned off. Type `/postmark status on` if you change your mind.'
 
       if (err) {
         responseText = 'There was an issue turning off status notifications. Try `/postmark status on` again. If you keep experiencing issues feel free to reach out to support@postmarkapp.com.'
